@@ -1,0 +1,30 @@
+{
+  "name": "ot-js-server",
+  "version": "1.0.0",
+  "description": "Operational Transform Client/Server",
+  "main": "./server.js",
+  "scripts": {
+    "start": "node server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terrencecrowley/ot-js-server.git"
+  },
+  "keywords": [
+    "Node",
+    "OT"
+  ],
+  "author": "Terry Crowley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/terrencecrowley/ot-js-server/issues"
+  },
+  "homepage": "https://github.com/terrencecrowley/ot-js-server#readme",
+  "dependencies": {
+    "@terrencecrowley/ot-editutil": "^1.0.0",
+    "@terrencecrowley/ot-js": "^1.0.1",
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0"
+  }
+}

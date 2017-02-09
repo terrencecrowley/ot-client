@@ -1,2 +1,2 @@
-# gui-utility
-Playground for web-based gui interaction primitives
+# ot-js-server
+Server side of our operational transform system.
