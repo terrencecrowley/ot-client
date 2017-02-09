@@ -1,2 +1,2 @@
-# ot-js-server
-Server side of our operational transform system.
+# chess-share
+OT over a chess model. Client and server.

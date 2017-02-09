@@ -1,7 +1,7 @@
 {
-  "name": "gui-utility",
+  "name": "chess-share",
   "version": "1.0.0",
-  "description": "Web GUI playground",
+  "description": "OT over a chess model",
   "main": "./server.js",
   "scripts": {
     "start": "node server",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terrencecrowley/gui-utility.git"
+    "url": "git+https://github.com/terrencecrowley/chess-share.git"
   },
   "keywords": [
     "Node"
@@ -19,9 +19,9 @@
   "author": "Terry Crowley",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/terrencecrowley/gui-utility/issues"
+    "url": "https://github.com/terrencecrowley/chess-share/issues"
   },
-  "homepage": "https://github.com/terrencecrowley/gui-utility#readme",
+  "homepage": "https://github.com/terrencecrowley/chess-share#readme",
   "dependencies": {
     "@terrencecrowley/ot-editutil": "^1.0.0",
     "@terrencecrowley/ot-js": "^1.0.1",
