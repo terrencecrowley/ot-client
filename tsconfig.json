@@ -4,6 +4,7 @@
 		"src/client.tsx",
 		"src/session.ts",
 		"src/board.ts",
+		"src/users.ts",
 		"src/components/message.tsx",
 		"src/components/chat.tsx",
 		"src/components/app.tsx",

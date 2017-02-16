@@ -18,8 +18,6 @@ export interface AppProps {
 		newCB: () => void,
 		chatCB: () => void,
 		submitChatCB: (s: string) => void,
-		captureElementCB: (el: any) => void,
-		contentChangeCB: (s: string, ss: number, se: number) => void,
 		nameChangeCB: (s: string) => void,
 		clickSquare: (id: number) => void
 		}

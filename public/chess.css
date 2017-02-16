@@ -16,6 +16,19 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	font-family: inherit;
 }
 
+.WhiteKing { background-image: url('./WhiteKing.png'); }
+.WhiteQueen { background-image: url('./WhiteQueen.png'); }
+.WhiteBishop { background-image: url('./WhiteBishop.png'); }
+.WhiteKnight { background-image: url('./WhiteKnight.png'); }
+.WhiteRook { background-image: url('./WhiteRook.png'); }
+.WhitePawn { background-image: url('./WhitePawn.png'); }
+.BlackKing { background-image: url('./BlackKing.png'); }
+.BlackQueen { background-image: url('./BlackQueen.png'); }
+.BlackBishop { background-image: url('./BlackBishop.png'); }
+.BlackKnight { background-image: url('./BlackKnight.png'); }
+.BlackRook { background-image: url('./BlackRook.png'); }
+.BlackPawn { background-image: url('./BlackPawn.png'); }
+
 td {
 	border-style: solid;
 	border-width: 4px;
@@ -35,17 +48,23 @@ td {
 }
 
 .onCell, .blackCell {
-	background: #333333;
+	background-color: #333333;
 	flex-grow: 1;
 	width: 100%;
 	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
 }
 
 .offCell, .whiteCell {
-	background: #cccccc;
+	background-color: #cccccc;
 	flex-grow: 1;
 	width: 100%;
 	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
 }
 
 .pieceTable {
@@ -57,12 +76,10 @@ td {
 
 .blackPiece {
 	color: black;
-	font-size: 300%;
 }
 
 .whitePiece {
 	color: white;
-	font-size: 300%;
 }
 
 body {

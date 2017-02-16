@@ -1,5 +1,6 @@
 import * as OT from '@terrencecrowley/ot-js';
 import * as fs from 'fs';
+import * as UM from "./users";
 
 const StateVersion: number = 2.0;
 const ClientIDForServer: string = '-';
@@ -348,6 +349,7 @@ export class Session
 
 export class SessionManager
 {
+	private _users: UM.Users;
 	private context: ServerContext;
 	private sessions: Session[];
 	private bTimerSet: boolean;
@@ -365,6 +367,14 @@ export class SessionManager
 			this.nHouseKeeping = 0;
 			this.setHousekeepingTimer();
 			this.load();
+			this._users = new UM.Users(ctx);
+			this._users.load();
+		}
+
+	// User management
+	get users(): UM.Users
+		{
+			return this._users;
 		}
 
 	// List Session

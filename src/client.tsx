@@ -6,22 +6,6 @@ import * as ReactDOM from "react-dom";
 import * as Board from "./board";
 import { ReactApp } from "./components/app";
 
-// Helper function for setting range of a textarea.
-function selectRange(el: any, start: any, end: any) {
-        if('selectionStart' in el) {
-            el.selectionStart = start;
-            el.selectionEnd = end;
-        } else if(el.setSelectionRange) {
-            el.setSelectionRange(start, end);
-        } else if(el.createTextRange) {
-            let range: any = el.createTextRange();
-            range.collapse(true);
-            range.moveEnd('character', end);
-            range.moveStart('character', start);
-            range.select();
-        }
-    }
-
 class BrowserContext implements OT.IExecutionContext
 {
 	constructor()
@@ -82,11 +66,6 @@ class App
 	usersValue: any;	// map of <userID, userName> pairs
 	chatArray: any;		// array of [userID, chat string] tuples
 
-	elTextArea: any;
-	textValue: string;
-	selectionStart: number;
-	selectionEnd: number;
-
 	isConnected: boolean;
 	isSessionReachable: boolean;
 	isSessionFull: boolean;
@@ -111,6 +90,7 @@ class App
 
 	// Actual board
 	board: Board.Board;
+	moves: number[];
 
 	// constructor
 	constructor()
@@ -120,10 +100,6 @@ class App
 			this.UserName = '';
 			this.Url = '';
 			this.Status = '';
-			this.elTextArea = null;
-			this.textValue = '';
-			this.selectionStart = 0;
-			this.selectionEnd = 0;
 			this.doNeedRender = false;
 
 			this.isConnected = true; // After all, we did successfully reach the page.
@@ -145,13 +121,14 @@ class App
 			this.EditUtil = new OTE.OTEditUtil(this.clientContext, this.currentSession, this.clientID, 'text');
 			this.speed = new SpeedManager();
 			this.board = new Board.Board();
+			this.moves = [];
 		}
 
 	render(): void
 		{
 			if (this.doNeedRender)
 			{
-				ReactDOM.render(<ReactApp board={this.board} clickSquare={clickSquareCB} name={this.UserName} url={this.Url} status={this.Status} captureElementCB={captureElementCB} contentChangeCB={contentChangeCB} nameChangeCB={nameChangeCB} newCB={newCB} submitChatCB={submitChatCB} chatCB={chatCB} isChatOn={this.isChatOn} nChatSeen={this.nChatSeen} clientID={this.clientID} chatArray={this.chatArray} users={this.usersValue} />,
+				ReactDOM.render(<ReactApp board={this.board} clickSquare={clickSquareCB} name={this.UserName} url={this.Url} status={this.Status} nameChangeCB={nameChangeCB} newCB={newCB} submitChatCB={submitChatCB} chatCB={chatCB} isChatOn={this.isChatOn} nChatSeen={this.nChatSeen} clientID={this.clientID} chatArray={this.chatArray} users={this.usersValue} />,
 					document.getElementById("root"));
 				this.doNeedRender = false;
 			}
@@ -269,6 +246,38 @@ class App
 			}
 		}
 
+	syncMoves(): void
+		{
+			// This simple sync algorithm presumes that there is actually turn-taking going on.
+			let nLocalMoves: number = this.board.Moves.length;
+			let nRemoteMoves: number = this.moves.length / 2;
+
+			// If shared array is larger, make those moves in my local board state
+			if (nRemoteMoves > nLocalMoves)
+			{
+				for (let i: number = nLocalMoves * 2; i < this.moves.length; i += 2)
+					this.board.move(this.moves[i], this.moves[i+1]);
+				this.board.setSelected(-1);
+				this.needRender();
+			}
+
+			// If local number of moves is larger, share those moves
+			else if (nLocalMoves > nRemoteMoves)
+			{
+				let editRoot: OT.OTCompositeResource = new OT.OTCompositeResource(this.currentSession, this.clientID);
+				let editMoves: OT.OTArrayResource = new OT.OTArrayResource('chess');
+				editMoves.edits.push([ OT.OpRetain, this.moves.length, [] ]);
+				for (let i: number = nRemoteMoves; i < this.board.Moves.length; i++)
+				{
+					let m: Board.Move = this.board.Moves[i];
+					editMoves.edits.push([ OT.OpInsert, 2, [ m[0], m[2] ] ]);
+				}
+				editRoot.edits.push(editMoves);
+				this.clientEngine.addLocal(editRoot);
+				this.fireEdits();
+			}
+		}
+
 	setUserName(s: string): void
 		{
 			if (this.UserName !== s)
@@ -296,22 +305,6 @@ class App
 			}
 		}
 
-	setTextValue(s: string, selectionStart?: number, selectionEnd?: number): void
-		{
-			this.textValue = s;
-			if (selectionStart !== undefined)
-				this.selectionStart = selectionStart;
-			if (selectionEnd !== undefined)
-				this.selectionEnd = selectionEnd;
-			if (this.elTextArea.value !== this.textValue
-				|| this.elTextArea.selectionStart != this.selectionStart
-				|| this.elTextArea.selectionEnd != this.selectionEnd)
-			{
-				this.elTextArea.value = s;
-				selectRange(this.elTextArea, this.selectionStart, this.selectionEnd);
-			}
-		}
-
 	isInSession(): boolean
 		{
 			return this.clientEngine != null;
@@ -324,9 +317,8 @@ class App
 
 	Initialize(): void
 		{
-			if (document.location.pathname === "/")
-				this.currentSession = document.location.pathname.substr(1);
-			else
+			let p: string = document.location.pathname;
+			if (p.length > 6 && p.substr(0, 6) === '/join/')
 				this.currentSession = document.location.pathname.substr(6); // Remove "/join/"
 			this.setUrl();
 			if (this.currentSession !== '')
@@ -378,6 +370,7 @@ class App
 			{
 				this.board.move(this.board.selected, id);
 				this.board.setSelected(-1);
+				this.syncMoves();
 			}
 			else
 				this.board.setSelected(id);
@@ -621,13 +614,10 @@ class App
 									this.clientEngine.addRemote(a);
 								}
 								let objVal: any = this.clientEngine.toValue();
-								if (objVal['text'])
+								if (objVal['chess'])
 								{
-									let cursor: any = this.EditUtil.extractCursor(this.clientEngine.stateLocal);
-									cursor = cursor ? cursor[this.clientID] : undefined;
-									let ss: number = cursor && cursor.selectionStart ? cursor.selectionStart : undefined;
-									let se: number = cursor && cursor.selectionEnd ? cursor.selectionEnd : ss;
-									this.setTextValue(objVal['text'], ss, se);
+									this.moves = objVal['chess'];
+									this.syncMoves();
 								}
 								if (objVal['WellKnownName_users'])
 								{
@@ -706,31 +696,6 @@ function chatCB(): void
 function submitChatCB(sChat: string): void
 {
 	theApp.submitChat(sChat);
-}
-
-function captureElementCB(el: any): void
-{
-	theApp.elTextArea = el;
-}
-
-function contentChangeCB(sNewVal: string, s: number, e: number): void
-{
-	if (theApp.isInSession())
-	{
-		let objOld: any = theApp.clientEngine.toValue();
-		let sOldVal = (objOld && objOld['text']) ? objOld['text'] : '';
-		if (sOldVal != sNewVal || s != theApp.selectionStart || e != theApp.selectionEnd)
-		{
-			let edit: OT.OTCompositeResource = theApp.EditUtil.computeEdit(sOldVal, sNewVal);
-			theApp.EditUtil.injectCursor(edit, s, e);
-			if (edit.length > 0)
-			{
-				theApp.clientEngine.addLocal(edit);
-				theApp.fireEdits();
-			}
-		}
-	}
-	theApp.setTextValue(sNewVal, s, e);
 }
 
 function nameChangeCB(sNewVal: string): void

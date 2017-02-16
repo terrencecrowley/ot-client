@@ -8,21 +8,22 @@ export interface BoardProps {
 
 export interface BoardState { }
 
-let PieceString: string[] = [];
-
-function getPieceString(): string[]
+function getPieceClass(color: number, piece: number): string
 	{
-		if (PieceString.length == 0)
+		if (piece == Board.Empty) return "";
+
+		let s: string = color == Board.Black ? "blackPiece Black" : "whitePiece White";
+		switch (piece)
 		{
-			PieceString[Board.Empty] = "";
-			PieceString[Board.Pawn] = "P";
-			PieceString[Board.Knight] = "N";
-			PieceString[Board.Bishop] = "B";
-			PieceString[Board.Rook] = "R";
-			PieceString[Board.Queen] = "Q";
-			PieceString[Board.King] = "K";
+			case Board.Empty: break;
+			case Board.Pawn: s += "Pawn"; break;
+			case Board.Knight: s += "Knight"; break;
+			case Board.Bishop: s += "Bishop"; break;
+			case Board.Rook: s += "Rook"; break;
+			case Board.Queen: s += "Queen"; break;
+			case Board.King: s += "King"; break;
 		}
-		return PieceString;
+		return s;
 	}
 
 export class BoardView extends React.Component<BoardProps, BoardState> {
@@ -53,15 +54,14 @@ export class BoardView extends React.Component<BoardProps, BoardState> {
 				{
 					let piece: number = this.props.board.pieceAt(c);
 					let color: number = this.props.board.colorAt(c);
-					let pieceClass: string = (color == Board.White) ? "whitePiece" : "blackPiece";
+					let pieceClass: string = getPieceClass(color, piece);
 					let squareClass: string = (i % 2) == (j % 2) ? "whiteCell" : "blackCell";
 					let selClass: string = this.props.board.selected == c ? " selected" : "";
 					let targetClass: string = this.props.board.isTargeted(c) ? " targeted" : "";
 					let classString: string = pieceClass + " " + squareClass;
-					let pieceString = getPieceString()[piece];
 					row[j] = (
 						<div onClick={this.handleClick} id={String(c)} key={String(c)} className={classString}>
-							<table className="pieceTable"><tbody><tr><td className={selClass + targetClass}>&nbsp;{pieceString}&nbsp;</td></tr></tbody></table>
+							<table className="pieceTable"><tbody><tr><td className={selClass + targetClass}>&nbsp;</td></tr></tbody></table>
 						</div>
 						);
 				}

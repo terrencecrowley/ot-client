@@ -117,9 +117,10 @@ export class NavBar extends React.Component<NavProps, NavState> {
 				chatString += "(" + String(this.props.nChatUnseen) + ")";
 			let nameString: string = this.props.name == '' ? "Set Name" : this.props.name;
 			let colorString: string = this.props.board.whoseMove() == Board.Black ? "Black Moves" : "White Moves";
+			let checkString: string = this.props.board.isCheck(this.props.board.whoseMove()) ? " / Check" : "";
 			return (
 				<div className="headerrow">
-					<a href="/">Home</a>&nbsp; | &nbsp;<a href="#share" onClick={this.handleShare}>Share</a>&nbsp; | &nbsp;<a href="#new" onClick={this.handleNew}>New</a>&nbsp; | &nbsp;<a href="#chat" onClick={this.handleChat}>{chatString}</a>&nbsp; | &nbsp;<a href="#namechange" onClick={this.handleDisplayName}>{nameString}</a>&nbsp; | &nbsp;{colorString}
+					<a href="/">Home</a>&nbsp; | &nbsp;<a href="#share" onClick={this.handleShare}>Share</a>&nbsp; | &nbsp;<a href="#new" onClick={this.handleNew}>New</a>&nbsp; | &nbsp;<a href="#chat" onClick={this.handleChat}>{chatString}</a>&nbsp; | &nbsp;<a href="#namechange" onClick={this.handleDisplayName}>{nameString}</a>&nbsp; | &nbsp;{colorString + checkString}
 					<div id="popup-share" className="popup">Copy and share this url:<br/>
 						<input id="nav" className="line" type="text" value={this.props.url} readOnly={true}/><br/>
 						<a href="#dismiss" onClick={this.handleDismiss}>Close</a>

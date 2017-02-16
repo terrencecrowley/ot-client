@@ -20,6 +20,12 @@
 .BlackRook { position: absolute; clip: rect(240px, 610px, 480px, 510px); left: -510px; height: 200px" }
 .BlackPawn { position: absolute; clip: rect(240px, 710px, 480px, 620px); left: -620px; height: 200px" }
 .block { width: 200px; height: 200px }
+.bg { 
+	background-image: url('./BlackKing.png'); 
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	}
 </style>
 
 <!-- 
@@ -39,9 +45,12 @@ Pawn: 620,90
 
 -->
 
+
 <body>
 
+
 <div id="root">
+<div class="block bg"></div>
 <div class=block><img src="./pieces.jpg" class=WhiteKing></div>
 <div class=block><img src="./pieces.jpg" class=WhiteQueen></div>
 <div class=block><img src="./pieces.jpg" class=WhiteBishop></div>
