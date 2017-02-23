@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as OT from '@terrencecrowley/ot-js';
+import * as SM from './serversession';
 
-const StateVersion: number = 2.0;
+const StateVersion: number = 3.0;
 
 export class User
 {
@@ -9,6 +10,7 @@ export class User
 	token: string;
 	name: string;
 	email: string;
+	sessions: any;
 
 	constructor(o?: any)
 		{
@@ -20,12 +22,13 @@ export class User
 				this.token = '';
 				this.name = '';
 				this.email = '';
+				this.sessions = {};
 			}
 		}
 
 	toJSON(): any
 		{
-			return { id: this.id, token: this.token, name: this.name, email: this.email };
+			return { id: this.id, token: this.token, name: this.name, email: this.email, sessions: this.sessions };
 		}
 
 	fromJSON(o: any): void
@@ -33,7 +36,25 @@ export class User
 			this.id = o.id;
 			this.token = o.token;
 			this.name = o.name;
-			this.email = this.email;
+			this.email = o.email;
+			this.sessions = o.sessions;
+			if (this.sessions == null)
+				this.sessions = {};
+		}
+
+	toView(sm: SM.SessionManager): any
+		{
+			let o: any = { id: this.id, name: this.name, sessions: [] };
+			let aS: any = o.sessions;
+			for (var p in this.sessions)
+				if (this.sessions.hasOwnProperty(p))
+				{
+					let s: SM.Session = sm.findSession(p);
+					if (s)
+						aS.push(s.toView());
+				}
+
+			return o;
 		}
 }
 
@@ -67,7 +88,6 @@ export class Users
 			let u: User = new User(o);
 			this.users.push(u);
 			this.bDirty = true;
-			this.save();
 			return u;
 		}
 
@@ -118,7 +138,8 @@ export class Users
 			{
 				let s: string = fs.readFileSync('state/users.json', 'utf8');
 				let o: any = JSON.parse(s);
-				this.fromJSON(o);
+				if (o.version == StateVersion)
+					this.fromJSON(o);
 				this.bDirty = false;
 			}
 			catch (err)

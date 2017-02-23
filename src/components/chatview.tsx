@@ -1,18 +1,16 @@
 import * as $ from "jquery";
 import * as React from "react";
+import * as CC from "../chatcontrol";
 
 export interface ChatProps {
-	clientID: string,
-	users: any,
-	chatArray: any,
-	submitChatCB: (s: string) => void
+	cc: CC.ChatControl
 	}
 
 export interface ChatState {
 	text: string
 	}
 
-export class Chat extends React.Component<ChatProps, ChatState> {
+export class ChatView extends React.Component<ChatProps, ChatState> {
 	constructor(props: any)
 		{
 			super(props);
@@ -30,7 +28,7 @@ export class Chat extends React.Component<ChatProps, ChatState> {
 		{
 			if (event.charCode == 13)
 			{
-				this.props.submitChatCB(event.target.value);
+				this.props.cc.notifyLocalChange(event.target.value);
 				this.setState( { text: '' } );
 			}
 		}
@@ -47,9 +45,9 @@ export class Chat extends React.Component<ChatProps, ChatState> {
 
 	render()
 		{
-			let whoMe: string = this.props.clientID;
-			let whoMap: any = this.props.users;
-			const chatHistory = this.props.chatArray.map((chatEntry: any, i: number) => {
+			let whoMe: string = this.props.cc.clientSession.clientID;
+			let whoMap: any = this.props.cc.userMap;
+			const chatHistory = this.props.cc.chatArray.map((chatEntry: any, i: number) => {
 				let sWho: string = whoMap[chatEntry[0]];
 				if (!sWho || sWho == '') sWho = chatEntry[0] == whoMe ? 'me' : 'anon';
 				return (

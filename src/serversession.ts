@@ -2,7 +2,7 @@ import * as OT from '@terrencecrowley/ot-js';
 import * as fs from 'fs';
 import * as UM from "./users";
 
-const StateVersion: number = 2.0;
+const StateVersion: number = 5.0;
 const ClientIDForServer: string = '-';
 
 function createGuid(): string
@@ -47,14 +47,17 @@ export class ServerContext implements OT.IExecutionContext
 export class Client
 {
 	clientID: string;
+	user: UM.User;
 	private context: ServerContext;
 	private lastActive: Date;
 	private longPollResponse: any;
 	private longPollResponseBody: any;
 
 	// constructor
-	constructor(ctx: ServerContext, cid: string)
+	constructor(ctx: ServerContext, sid: string, cid: string, u: any)
 		{
+			this.user = u as UM.User;
+			this.user.sessions[sid] = true;
 			this.clientID = cid;
 			this.context = ctx;
 			this.lastActive = new Date();
@@ -98,6 +101,8 @@ export class Client
 export class Session
 {
 	sessionID: string;
+	sessionName: string;
+	sessionType: string;
 	serverEngine: OT.OTServerEngine;
 	clients: Client[];
 	private context: ServerContext;
@@ -112,6 +117,8 @@ export class Session
 		{
 			this.context = ctx;
 			this.sessionID = createGuid();
+			this.sessionName = '';
+			this.sessionType = '';
 			this.serverEngine = new OT.OTServerEngine(ctx, this.sessionID);
 			this.clients = [];
 			this.lastActive = new Date();
@@ -166,6 +173,9 @@ export class Session
 					this.context.log(0, "session(" + this.sessionID + "): removing zombie client(" + c.clientID + ")");
 					this.clients.splice(i, 1);
 				}
+				else
+					if (val[c.clientID] === undefined)
+						medit.edits.push([ OT.OpMapSet, c.clientID, c.user.name ]);
 			}
 			if (! medit.isEmpty())
 			{
@@ -205,17 +215,11 @@ export class Session
 			else
 			{
 				let clientID: any = createGuid();
-				let userName: any = req.cookies.userName;
-				let client: Client = new Client(this.context, clientID);
+				let client: Client = new Client(this.context, this.sessionID, clientID, req.user);
 				this.clients.push(client);
 				if (this.clients.length > this.statMaxClients) this.statMaxClients = this.clients.length;
 				this.context.log(0, "session(" + this.sessionID + "): creating client(" + client.clientID + ")");
-				responseBody = { "result": 0, "clientID": client.clientID };
-				if (userName)
-				{
-					res.cookie('userName', userName);
-					responseBody.userName = userName;
-				}
+				responseBody = { result: 0, clientID: client.clientID, session: this.toView() };
 			}
 			this.context.log(1, "connectSession: " + JSON.stringify(responseBody));
 			res.json(responseBody);
@@ -262,17 +266,13 @@ export class Session
 			this.statRequestCount++;
 			this.unparkClients();
 			let edit: OT.OTCompositeResource = OT.OTCompositeResource.constructFromObject(body["Edit"]);
-			let client: Client = this.findClient(body["clientID"]).markAlive();
+			let client: Client = this.findClient(body["clientID"], req.user).markAlive();
 			let responseBody: any = null;
 			let nResult: number = this.serverEngine.addServer(edit);
 			if (nResult === OT.clockSuccess)
 			{
 				// Drain any unsent actions (including this one)
 				responseBody = { "result": 0, "EditList": this.nakedEditList(edit.clock + 1) };
-				// Cookiefy user name
-				let name: any = this.getUserName(client);
-				if (name != '')
-					res.cookie('userName', name);
 			}
 			else
 			{
@@ -290,7 +290,7 @@ export class Session
 		{
 			this.lastActive = new Date();
 			this.statRequestCount++;
-			let client: Client = this.findClient(body["clientID"]).markAlive();
+			let client: Client = this.findClient(body["clientID"], req.user).markAlive();
 			let nextClock: number = Number(body["NextClock"]);
 			let responseBody: any = null;
 			if (nextClock === NaN)
@@ -319,7 +319,7 @@ export class Session
 		}
 
 	// Helpers
-	findClient(cid: string): Client
+	findClient(cid: string, user: any): Client
 		{
 			for (let i: number = 0; i < this.clients.length; i++)
 			{
@@ -331,19 +331,46 @@ export class Session
 
 			// Presume we edited it out after quiescence - reconstruct on the fly
 			this.context.log(0, "session(" + this.sessionID + "): reconstructing zombie client(" + cid + ")");
-			let c: Client = new Client(this.context, cid);
+			let c: Client = new Client(this.context, this.sessionID, cid, user);
 			this.clients.push(c);
 			return c;
 		}
 
+	toView(): any
+		{
+			let o: any =
+				{
+					sessionID: this.sessionID,
+					sessionName: this.sessionName,
+					sessionType: this.sessionType,
+					lastActive: this.lastActive,
+					clientCount: this.clients.length,
+					maxClients: this.statMaxClients,
+					requestCount: this.statRequestCount
+				};
+			return o;
+		}
+
 	toJSON(): any
 		{
-			return this.serverEngine.toJSON();
+			return { 
+				sessionID: this.sessionID,
+				sessionName: this.sessionName,
+				sessionType: this.sessionType,
+				lastActive: this.lastActive,
+				maxClients: this.statMaxClients,
+				engine: this.serverEngine.toJSON()
+				};
 		}
 
 	fromJSON(o: any): void
 		{
-			this.serverEngine.loadFromObject(o);
+			this.sessionID = o.sessionID;
+			this.sessionName = o.sessionName;
+			this.sessionType = o.sessionType;
+			this.lastActive = o.lastActive;
+			this.statMaxClients = o.statMaxClients;
+			this.serverEngine.loadFromObject(o.engine);
 		}
 }
 
@@ -352,6 +379,7 @@ export class SessionManager
 	private _users: UM.Users;
 	private context: ServerContext;
 	private sessions: Session[];
+	private sessionMap: any;
 	private bTimerSet: boolean;
 	private bDirty: boolean;
 	private bSaving: boolean;
@@ -362,6 +390,7 @@ export class SessionManager
 		{
 			this.context = ctx;
 			this.sessions = [];
+			this.sessionMap = {};
 			this.bTimerSet = false;
 			this.bSaving = false;
 			this.nHouseKeeping = 0;
@@ -391,13 +420,33 @@ export class SessionManager
 			this.setHousekeepingTimer();
 		}
 
+	// User View
+		// OUT: { result: 0, user: { user info } }
+	userView(req: any, res: any): void
+		{
+			let responseBody: any = { result: 0 };
+			if (req.user == null)
+			{
+				responseBody.result = 1;
+				responseBody.message = "No valid user.";
+			}
+			else
+				responseBody.user = req.user.toView(this);
+			res.json(responseBody);
+			this.setHousekeepingTimer();
+		}
+
 	// Create
-		// OUT: { "result": 0, "session_id": string }
+		// IN: { sessionType: type }
+		// OUT: { result: 0, session_id: string }
 	createSession(req: any, res: any): void
 		{
 			let session: Session = new Session(this.context);
+			if (req.body.sessionType !== undefined)
+				session.sessionType = req.body.sessionType;
 			this.sessions.push(session);
-			let responseBody: any = { "result": 0, "session_id": session.sessionID };
+			this.sessionMap[session.sessionID] = session;
+			let responseBody: any = { result: 0, session_id: session.sessionID };
 			this.context.log(1, "createSession: " + JSON.stringify(responseBody));
 			res.json(responseBody);
 			this.bDirty = true;
@@ -405,7 +454,7 @@ export class SessionManager
 		}
 
 	// Connect
-		// OUT: { "result": [0,1], "message": "failure message", "clientID": cid }
+		// OUT: { result: [0,1], message: "failure message", clientID: cid, session: { session_info } }
 	connectSession(req: any, res: any, session_id: string): void
 		{
 			let session: Session = this.findSession(session_id);
@@ -423,9 +472,40 @@ export class SessionManager
 			this.setHousekeepingTimer();
 		}
 
+	// Name Session
+		// IN: { sessionName: string }
+		// OUT: { result: [0,1] }
+	nameSession(req: any, res: any, session_id: string): void
+		{
+			if (req.body.sessionName === undefined)
+			{
+				let responseBody: any = { result: 1, message: "nameSession: no sessionName specified." };
+				this.context.log(1, "nameSession: " + JSON.stringify(responseBody));
+				res.json(responseBody);
+			}
+			else
+			{
+				let session: Session = this.findSession(session_id);
+				if (session)
+				{
+					session.sessionName = req.body.sessionName;
+					let responseBody: any = { result: 0 };
+					res.json(responseBody);
+					this.bDirty = true;
+				}
+				else
+				{
+					let responseBody: any = { result: 1, message: "nameSession: no such session: " + session_id };
+					this.context.log(1, "nameSession: " + JSON.stringify(responseBody));
+					res.json(responseBody);
+				}
+			}
+			this.setHousekeepingTimer();
+		}
+
 	// Send Event
 		// IN: { clientID: id, Edit: OT.OTCompositeResource }
-		// OUT: { "result": 0, "EditList":[ OT.OTCompositeResource ] }
+		// OUT: { result: 0, EditList:[ OT.OTCompositeResource ] }
 	sendEvent(req: any, res: any, session_id: string, body: any): void
 		{
 			let session: Session = this.findSession(session_id);
@@ -436,7 +516,7 @@ export class SessionManager
 			}
 			else
 			{
-				let responseBody: any = { "result": 1, "message": "sendEvent: no such session: " + session_id };
+				let responseBody: any = { result: 1, "message": "sendEvent: no such session: " + session_id };
 				this.context.log(1, "sendEvent: " + JSON.stringify(responseBody));
 				res.json(responseBody);
 			}
@@ -463,10 +543,8 @@ export class SessionManager
 	// Helpers
 	findSession(session_id: string): Session
 		{
-			for (let i: number = 0; i < this.sessions.length; i++)
-				if (this.sessions[i].sessionID === session_id)
-					return this.sessions[i];
-			return null;
+			let session: Session = this.sessionMap[session_id];
+			return session ? session : null;
 		}
 
 	// housekeeping Timer
@@ -496,6 +574,7 @@ export class SessionManager
 				{
 					session.logStats();
 					this.sessions.splice(i, 1);
+					delete this.sessionMap[session.sessionID];
 				}
 			}
 
@@ -554,9 +633,10 @@ export class SessionManager
 				if (o.hasOwnProperty(p))
 				{
 					let session: Session = new Session(this.context);
-					session.sessionID = p;
+					//session.sessionID = p;
 					session.fromJSON(o[p]);
 					this.sessions.push(session);
+					this.sessionMap[session.sessionID] = session;
 				}
 		}
 
@@ -564,6 +644,8 @@ export class SessionManager
 		{
 			try
 			{
+				this.users.save();
+
 				if (this.bDirty && !this.bSaving)
 				{
 					let s: string = JSON.stringify(this);

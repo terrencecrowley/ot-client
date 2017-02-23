@@ -1,37 +1,32 @@
 import * as React from "react";
 import { NavBar } from "./navbar";
 import { BoardView } from "./boardview";
-import { Message } from "./message";
-import { Chat } from "./chat";
-import * as Board from "../board";
+import { StatusView } from "./statusview";
+import { ChatView } from "./chatview";
+
+import * as BC from "../boardcontrol";
+import * as CC from "../chatcontrol";
 
 export interface AppProps {
 		name: string, 
 		url: string,
 		status: string,
-		isChatOn: boolean,
-		nChatSeen: number,
-		chatArray: any,
-		clientID: string,
-		users: any,
-		board: Board.Board,
+		cc: CC.ChatControl,
+		bc: BC.BoardControl,
 		newCB: () => void,
-		chatCB: () => void,
-		submitChatCB: (s: string) => void,
-		nameChangeCB: (s: string) => void,
-		clickSquare: (id: number) => void
+		chatCB: () => void
 		}
 
 export class ReactApp extends React.Component<AppProps, {}> {
 	render()
 		{
-			let nChatUnseen: number = this.props.isChatOn ? 0 : this.props.chatArray.length - this.props.nChatSeen;
-			let cmpNav: any = <NavBar url={this.props.url} name={this.props.name} nameChangeCB={this.props.nameChangeCB} newCB={this.props.newCB} chatCB={this.props.chatCB} isChatOn={this.props.isChatOn} nChatUnseen={nChatUnseen} board={this.props.board}/>;
-			let cmpBoard: any = <BoardView board={this.props.board} clickSquare={this.props.clickSquare} />;
-			let cmpChat: any = <Chat submitChatCB={this.props.submitChatCB} clientID={this.props.clientID} users={this.props.users} chatArray={this.props.chatArray} />;
-			let cmpMessage: any = <Message status={this.props.status} />;
+			let nChatUnseen: number = this.props.cc.bChatOn ? 0 : this.props.cc.chatArray.length - this.props.cc.nChatSeen;
+			let cmpNav: any = <NavBar url={this.props.url} name={this.props.name} newCB={this.props.newCB} chatCB={this.props.chatCB} isChatOn={this.props.cc.bChatOn} nChatUnseen={nChatUnseen} bc={this.props.bc}/>;
+			let cmpBoard: any = <BoardView bc={this.props.bc} />;
+			let cmpChat: any = <ChatView cc={this.props.cc} />;
+			let cmpStatus: any = <StatusView status={this.props.status} />;
 
-			if (this.props.isChatOn)
+			if (this.props.cc.bChatOn)
 				return (
 					<div className="wrapper">
 						<div className="header">
@@ -42,7 +37,7 @@ export class ReactApp extends React.Component<AppProps, {}> {
 						{cmpChat}
 						</div>
 						<div className="footer">
-						{cmpMessage}
+						{cmpStatus}
 						</div>
 					</div>
 					);
@@ -56,7 +51,7 @@ export class ReactApp extends React.Component<AppProps, {}> {
 						{cmpBoard}
 						</div>
 						<div className="footer">
-						{cmpMessage}
+						{cmpStatus}
 						</div>
 					</div>
 					);

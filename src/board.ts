@@ -3,6 +3,7 @@
 //	Castling
 //	No Castling under jeopardy
 //	Stalemate due to endless repetition
+//	Pawn reaching final row
 
 export const Empty: number = 0;
 export const Pawn: number = 1;
@@ -87,6 +88,16 @@ export class Board
 	pieceAt(n: number)
 		{
 			return (n >= 0 && n < 64) ? (this.Squares[n] & (~(Black|White))) : Empty;
+		}
+
+	rowAt(n: number)
+		{
+			return Math.floor(n / 8);
+		}
+
+	colAt(n: number)
+		{
+			return n % 8;
 		}
 
 	findPiece(piece: number): number
@@ -263,6 +274,9 @@ export class Board
 		{
 			let m: Move = [ start, this.Squares[start], end, this.Squares[end] ];
 			this.Squares[end] = this.Squares[start];
+			// Really should be user choice...
+			if (this.pieceAt(end) == Pawn && (this.rowAt(end) == 0 || this.rowAt(end) == 7))
+				this.Squares[end] = this.colorAt(end) | Queen;
 			this.Squares[start] = Empty;
 			this.Moves.push(m);
 		}

@@ -9,7 +9,7 @@ import * as UM from "./users";
 
 let app = express();
 
-import * as OTManager from './session';
+import * as OTManager from './serversession';
 
 let serverContext: OTManager.ServerContext = new OTManager.ServerContext();
 var sessionManager: OTManager.SessionManager = new OTManager.SessionManager(serverContext);
@@ -73,8 +73,6 @@ passport.use(new FacebookStrategy(
 					return done(null, user);
 				else
 				{
-					console.log("Facebook profile:");
-					console.log(profile);
 					let o: any = { id: profile.id, token: token };
 					if (profile.name)
 						o.name = profile.name.givenName + ' ' + profile.name.familyName;
@@ -84,8 +82,6 @@ passport.use(new FacebookStrategy(
 						o.email = profile.emails[0].value;
 					else
 						o.email = "someone@anywhere.com";
-					console.log("Creating user:");
-					console.log(o);
 					user = sessionManager.users.createUser(o);
 					done(null, user);
 				}
@@ -97,6 +93,7 @@ passport.use(new FacebookStrategy(
 function isLoggedIn(req: any, res: any, next: any) {
 	if (req.user)
 		return next();
+	req.session.redirect_to = req.originalUrl;
 	res.redirect('/auth/facebook');
 }
 
@@ -112,7 +109,7 @@ app.use('/pages', isLoggedIn, express.static('pages'));
 // Authentication routes
 app.get('/', function(req: any, res: any) {
 	if (req.user)
-		res.render('/pages/index.html');
+		res.redirect('/pages/index.html');
 	else
 		res.redirect('/auth/facebook');
 });
@@ -120,13 +117,25 @@ app.get('/', function(req: any, res: any) {
 app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }));
 
 app.get('/auth/facebook/callback',
-	passport.authenticate('facebook', {
-		successRedirect: '/pages/index.html',
-		failureRedirect: '/'
-		}));
+	passport.authenticate('facebook', { successRedirect: '/login', failureRedirect: '/' }));
+
+app.get('/login', function(req: any, res: any) {
+		if (req.user)
+		{
+			if (req.session.redirect_to)
+			{
+				let url: string = req.session.redirect_to;
+				delete req.session.redirect_to;
+				res.redirect(url);
+			}
+			else
+				res.redirect('/pages/index.html');
+		}
+		else
+			res.redirect('/');
+	});
 
 app.get('/logout', function(req: any, res: any) {
-	console.log("Trace: logout");
 	req.logout();
 	res.redirect('/');
 	});
@@ -140,6 +149,12 @@ router.route('/sessions')
 		sessionManager.listSessions(req, res);
 		});
 
+router.route('/sessions/userview')
+	.post(isLoggedInAPI, function(req, res) {
+		serverContext.log(1, "userview");
+		sessionManager.userView(req, res);
+		});
+
 router.route('/sessions/create')
 	.post(isLoggedInAPI, function(req, res) {
 		serverContext.log(1, "createSession");
@@ -150,6 +165,12 @@ router.route('/sessions/connect/:session_id')
 	.post(isLoggedInAPI, function(req, res) {
 		serverContext.log(1, "connectSession");
 		sessionManager.connectSession(req, res, req.params.session_id);
+		});
+
+router.route('/sessions/name/:session_id')
+	.post(isLoggedInAPI, function(req, res) {
+		serverContext.log(1, "nameSession");
+		sessionManager.nameSession(req, res, req.params.session_id);
 		});
 
 router.route('/sessions/sendevent/:session_id')
@@ -171,9 +192,9 @@ app.use('/api', router);
 
 // Join existing session
 joinRouter.route('/:session_id')
-	.get(isLoggedInAPI, function(req, res) {
-		let options: any = { root: '/' };
-		res.sendFile('pages/index.html');
+	.get(isLoggedIn, function(req, res) {
+		let options: any = { root: './' };
+		res.sendFile('pages/index.html', options);
 		});
 app.use('/join', joinRouter);
 
