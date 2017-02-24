@@ -257,7 +257,7 @@ export class Session
 
 	// Client Event
 		// IN: { clientID: id, Edit: OT.OTCompositeResource }
-		// OUT: { "result": 0, "EditList":[ OT.OTCompositeResource ] }
+		// OUT: { result: 0, EditList:[ OT.OTCompositeResource ] }
 	sendEvent(req: any, res: any, body: any): void
 		{
 			this.lastActive = new Date();
@@ -270,12 +270,16 @@ export class Session
 			if (nResult === OT.clockSuccess)
 			{
 				// Drain any unsent actions (including this one)
-				responseBody = { "result": 0, "EditList": this.nakedEditList(edit.clock + 1) };
+				responseBody = { result: 0,
+								 clientID: client.clientID,
+								 view: this.toView(),
+								 EditList: this.nakedEditList(edit.clock + 1)
+								 };
 			}
 			else
 			{
 				// Clock unavailable
-				responseBody = { "result": nResult, "message": "sendEvent: failure: " + nResult };
+				responseBody = { result: nResult, "message": "sendEvent: failure: " + nResult };
 			}
 			this.context.log(1, "sendEvent: " + JSON.stringify(responseBody));
 			res.json(responseBody);
@@ -293,12 +297,15 @@ export class Session
 			let responseBody: any = null;
 			if (nextClock === NaN)
 			{
-				responseBody = { "result": 1, "message": "receiveEvent: invalid clock: " + body["NextClock"] };
+				responseBody = { result: 1, "message": "receiveEvent: invalid clock: " + body["NextClock"] };
 			}
 			else
 			{
 				// Send any unsent edits
-				responseBody = { "result": 0, "EditList": this.nakedEditList(nextClock) };
+				responseBody = { result: 0,
+							     clientID: client.clientID,
+								 view: this.toView(),
+								 EditList: this.nakedEditList(nextClock) };
 				if (responseBody.EditList.length == 0)
 				{
 					client.parkResponse(res, responseBody);

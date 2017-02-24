@@ -350,6 +350,10 @@ export class ClientSession
 			// Successful response from server - we're connected
 			this.setConnected(true);
 
+			// If this request is not pending, it got canceled - ignore
+			if (! this.baPending[req])
+				return;
+
 			// Check for odd result code
 			if (result === undefined || result.result === undefined)
 			{
