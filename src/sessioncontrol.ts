@@ -1,26 +1,28 @@
 import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 import * as CS from "./clientsession";
+import * as ClientActions from "./clientactions";
 
 export class SessionControl
 {
 	context: OT.IExecutionContext;
 	clientSession: CS.ClientSession;
-
-	user: any;		// user object with name, sessions
+	actions: ClientActions.IClientActions;
 	reRender: () => void;
+	user: any;
 
-	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void)
+	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void, actions: ClientActions.IClientActions)
 		{
 			this.context = ctx;
 			this.clientSession = cs;
 			this.reRender = reRender;
-			this.user = cs.user
-			this.notifyChange = this.notifyChange.bind(this);
-			cs.onStatusChange(this.notifyChange);
+			this.actions = actions;
+			this.notifyStatusChange = this.notifyStatusChange.bind(this);
+			cs.onStatusChange(this.notifyStatusChange);
+			this.user = cs.user;
 		}
 
-	notifyChange(cs: CS.ClientSession)
+	notifyStatusChange(cs: CS.ClientSession)
 		{
 			this.user = cs.user;
 			this.reRender();

@@ -2,6 +2,7 @@ import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 import * as OTE from "@terrencecrowley/ot-editutil";
 import * as CS from "./clientsession";
+import * as ClientActions from "./clientactions";
 
 // Helper function for setting range of a textarea.
 function selectRange(el: any, start: any, end: any) {
@@ -24,16 +25,20 @@ export class ScratchControl
 	context: OT.IExecutionContext;
 	clientSession: CS.ClientSession;
 	reRender: () => void;
+	actions: ClientActions.IClientActions;
+
 	editUtil: OTE.OTEditUtil;
 	textValue: string;
 	selectionStart: number;
 	selectionEnd: number;
 	elTextArea: any;
 
-	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void)
+	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void, actions: ClientActions.IClientActions)
 	{
 		this.context = ctx;
 		this.reRender = reRender;
+		this.actions = actions;
+
 		this.textValue = '';
 		this.selectionStart = 0;
 		this.selectionEnd = 0;
@@ -47,6 +52,13 @@ export class ScratchControl
 		cs.onJoin('text', this.notifyJoin);
 		this.editUtil = null;
 	}
+
+	reset(): void
+		{
+			this.textValue = '';
+			this.selectionStart = 0;
+			this.selectionEnd = 0;
+		}
 
 	notifyChange(cs: CS.ClientSession, a: any): void
 		{
@@ -76,13 +88,16 @@ export class ScratchControl
                 this.selectionStart = selectionStart;
             if (selectionEnd !== undefined)
                 this.selectionEnd = selectionEnd;
-            if (this.elTextArea.value !== this.textValue
-                || this.elTextArea.selectionStart != this.selectionStart
-                || this.elTextArea.selectionEnd != this.selectionEnd)
-            {
-                this.elTextArea.value = s;
-                selectRange(this.elTextArea, this.selectionStart, this.selectionEnd);
-				this.reRender();
+			if (this.elTextArea)
+			{
+				if (this.elTextArea.value !== this.textValue
+					|| this.elTextArea.selectionStart != this.selectionStart
+					|| this.elTextArea.selectionEnd != this.selectionEnd)
+				{
+					this.elTextArea.value = s;
+					selectRange(this.elTextArea, this.selectionStart, this.selectionEnd);
+					this.reRender();
+				}
             }
         }
 

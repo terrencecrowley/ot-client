@@ -235,3 +235,12 @@ textarea {
 	font-family: Trebuchet MS, Helvetica, sans-serif;
 	font-size: 100%;
 }
+
+button {
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+	font-size: 100%;
+}
+
+.actionButton {
+	background-color: lightgreen
+}

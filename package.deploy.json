@@ -1,5 +1,5 @@
 {
-  "name": "ot-js-server",
+  "name": "chess-share",
   "version": "1.0.0",
   "description": "Operational Transform Client/Server",
   "main": "./server.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terrencecrowley/ot-js-server.git"
+    "url": "git+https://github.com/terrencecrowley/chess-share.git"
   },
   "keywords": [
     "Node",
@@ -17,9 +17,9 @@
   "author": "Terry Crowley",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/terrencecrowley/ot-js-server/issues"
+    "url": "https://github.com/terrencecrowley/chess-share/issues"
   },
-  "homepage": "https://github.com/terrencecrowley/ot-js-server#readme",
+  "homepage": "https://github.com/terrencecrowley/chess-share#readme",
   "dependencies": {
     "@terrencecrowley/ot-editutil": "^1.0.0",
     "@terrencecrowley/ot-js": "^1.0.1",

@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as SC from "../sessioncontrol";
+import * as ClientActions from "../clientactions";
 
 export interface SessionProps {
 	sc: SC.SessionControl
@@ -14,11 +15,12 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 			this.handleClick = this.handleClick.bind(this);
 			this.handleClickNewScratch = this.handleClickNewScratch.bind(this);
 			this.handleClickNewChess = this.handleClickNewChess.bind(this);
+			this.handleClickNewDoodle = this.handleClickNewDoodle.bind(this);
 		}
 
 	handleClick(e: any): boolean
 		{
-			//this.props.sc.joinSession(e.currentTarget.id);
+			this.props.sc.actions.fire(ClientActions.JoinSession, e.currentTarget.id);
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -26,7 +28,7 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 
 	handleClickNewScratch(e: any): boolean
 		{
-			//this.props.sc.newScratchSession();
+			this.props.sc.actions.fire(ClientActions.NewScratch);
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -34,7 +36,15 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 
 	handleClickNewChess(e: any): boolean
 		{
-			//this.props.sc.newChessSession();
+			this.props.sc.actions.fire(ClientActions.NewChess);
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	handleClickNewDoodle(e: any): boolean
+		{
+			this.props.sc.actions.fire(ClientActions.NewDoodle);
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -43,29 +53,41 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 	render()
 		{
 			let user: any = this.props.sc.user;
+			let sessionButtons: any = [];
 			if (user.sessions)
 			{
-				let sessionButtons: any = [];
 				for (let i: number = 0; i < user.sessions.length; i++)
 				{
 					let s: any = user.sessions[i];
-					sessionsButtons[i] =
+					sessionButtons[i] =
 						(
 							<div>
-							<button onClick={this.handleClick} id={s.sessionID}>
-								{s.sessionType}&nbsp;{String(s.clientCount) + " users active"}
+							<button className={'actionButton'} onClick={this.handleClick} id={s.sessionID}>
+								Join
 							</button>
-							</br>
+							&nbsp;
+							&nbsp;
+							{s.sessionType}:&nbsp;{String(s.clientCount) + " users active"}
+							<br/>
 							</div>
 						);
 				}
-				return (
-						 <div>
-						 	{sessionButtons}
-							<button onClick={this.handleClickNewScratch}>New Scratch</button>
-							<button onClick={this.handleClickNewChess}>New Chess</button>
-						 </div>
-						);
 			}
+			else
+			{
+				sessionButtons.push(<div>No Sessions</div>);
+			}
+			return (
+					 <div>
+					 	Available Sessions:<br/><br/>
+						{sessionButtons}
+						<br/>
+						<button className={'actionButton'} onClick={this.handleClickNewScratch}>New Text</button>
+						&nbsp;
+						<button className={'actionButton'} onClick={this.handleClickNewChess}>New Chess</button>
+						&nbsp;
+						<button className={'actionButton'} onClick={this.handleClickNewDoodle}>New Doodle</button>
+					 </div>
+					);
 		}
 }

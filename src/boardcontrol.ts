@@ -2,26 +2,37 @@ import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 import * as CS from "./clientsession";
 import * as Board from "./board";
+import * as ClientActions from "./clientactions";
 
 export class BoardControl
 {
 	context: OT.IExecutionContext;
 	clientSession: CS.ClientSession;
 	reRender: () => void;
+	actions: ClientActions.IClientActions;
 
 	board: Board.Board;		// Local board state
 	moves: number[];		// Remote synchronized log of moves
 
-	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void)
+	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void, actions: ClientActions.IClientActions)
 		{
 			this.context = ctx;
 			this.clientSession = cs;
 			this.reRender = reRender;
+			this.actions = actions;
 
 			this.board = new Board.Board();
 			this.moves = [];
 			this.notifyBoardChange = this.notifyBoardChange.bind(this);
 			cs.onChange('chess', this.notifyBoardChange);
+		}
+
+	navText(): string
+		{
+			let color: number = this.board.whoseMove();
+			let colorString: string = color == Board.Black ? "Black Moves" : "White Moves";
+			let checkString: string = this.board.isMate() ? " / Mate" : (this.board.isCheck(color) ? " / Check" : "");
+			return colorString + checkString;
 		}
 
 	reset(): void

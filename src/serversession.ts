@@ -2,7 +2,7 @@ import * as OT from '@terrencecrowley/ot-js';
 import * as fs from 'fs';
 import * as UM from "./users";
 
-const StateVersion: number = 5.0;
+const StateVersion: number = 6.0;
 const ClientIDForServer: string = '-';
 
 function createGuid(): string
@@ -214,12 +214,10 @@ export class Session
 			}
 			else
 			{
-				let clientID: any = createGuid();
-				let client: Client = new Client(this.context, this.sessionID, clientID, req.user);
-				this.clients.push(client);
-				if (this.clients.length > this.statMaxClients) this.statMaxClients = this.clients.length;
+				let clientID: any = req.body.clientID ? req.body.clientID : createGuid();
+				let client: Client = this.findClient(clientID, req.user).markAlive();
 				this.context.log(0, "session(" + this.sessionID + "): creating client(" + client.clientID + ")");
-				responseBody = { result: 0, clientID: client.clientID, session: this.toView() };
+				responseBody = { result: 0, clientID: client.clientID, view: this.toView() };
 			}
 			this.context.log(1, "connectSession: " + JSON.stringify(responseBody));
 			res.json(responseBody);
@@ -329,10 +327,11 @@ export class Session
 					return c;
 			}
 
-			// Presume we edited it out after quiescence - reconstruct on the fly
-			this.context.log(0, "session(" + this.sessionID + "): reconstructing zombie client(" + cid + ")");
+			// Create on the fly - may be creating new or recreating a zombie client we've edited out
+			this.context.log(0, "session(" + this.sessionID + "): constructing client(" + cid + ")");
 			let c: Client = new Client(this.context, this.sessionID, cid, user);
 			this.clients.push(c);
+			if (this.clients.length > this.statMaxClients) this.statMaxClients = this.clients.length;
 			return c;
 		}
 
@@ -343,7 +342,7 @@ export class Session
 					sessionID: this.sessionID,
 					sessionName: this.sessionName,
 					sessionType: this.sessionType,
-					lastActive: this.lastActive,
+					lastActive: this.lastActive.toJSON(),
 					clientCount: this.clients.length,
 					maxClients: this.statMaxClients,
 					requestCount: this.statRequestCount
@@ -357,7 +356,7 @@ export class Session
 				sessionID: this.sessionID,
 				sessionName: this.sessionName,
 				sessionType: this.sessionType,
-				lastActive: this.lastActive,
+				lastActive: this.lastActive.toJSON(),
 				maxClients: this.statMaxClients,
 				engine: this.serverEngine.toJSON()
 				};
@@ -368,7 +367,7 @@ export class Session
 			this.sessionID = o.sessionID;
 			this.sessionName = o.sessionName;
 			this.sessionType = o.sessionType;
-			this.lastActive = o.lastActive;
+			this.lastActive = new Date(o.lastActive);
 			this.statMaxClients = o.statMaxClients;
 			this.serverEngine.loadFromObject(o.engine);
 		}
@@ -446,7 +445,7 @@ export class SessionManager
 				session.sessionType = req.body.sessionType;
 			this.sessions.push(session);
 			this.sessionMap[session.sessionID] = session;
-			let responseBody: any = { result: 0, session_id: session.sessionID };
+			let responseBody: any = { result: 0, view: session.toView() };
 			this.context.log(1, "createSession: " + JSON.stringify(responseBody));
 			res.json(responseBody);
 			this.bDirty = true;

@@ -310,15 +310,15 @@ export class Board
 
 	isMate(): number // Black and/or White returned
 		{
+			let colorMove: number = this.whoseMove();
 			let color: number = 0;
 
-			let n: number = this.findPiece(Black|King);
-			let moves: number[] = this.getLegalMoves(n);
-			if (moves.length == 0) color |= Black;
-
-			n = this.findPiece(White|King);
-			moves = this.getLegalMoves(n);
-			if (moves.length == 0) color |= White;
+			if (this.isCheck(colorMove))
+			{
+				let n: number = this.findPiece(colorMove|King);
+				let moves: number[] = this.getLegalMoves(n);
+				if (moves.length == 0) color |= colorMove;
+			}
 
 			return color;
 		}

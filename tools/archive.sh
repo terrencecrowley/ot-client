@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SRC=./gui-utility
+SRC=./chess-share
 DST=${SRC}.deploy
 
 if [ ! -e ${SRC} ]; then
@@ -19,11 +19,16 @@ cp ${SRC}/server.js ${DST}
 cp -R ${SRC}/dist ${DST}
 cp -R ${SRC}/clientdist ${DST}
 cp -R ${SRC}/public ${DST}
+cp -R ${SRC}/pages ${DST}
 cp -R ${SRC}/state ${DST}
 rm ${DST}/state/*
 cp -R ${SRC}/node_modules/express ${DST}/node_modules
+cp -R ${SRC}/node_modules/express-session ${DST}/node_modules
+cp -R ${SRC}/node_modules/passport ${DST}/node_modules
+cp -R ${SRC}/node_modules/passport-facebook ${DST}/node_modules
 cp -R ${SRC}/node_modules/body-parser ${DST}/node_modules
 cp -R ${SRC}/node_modules/cookie-parser ${DST}/node_modules
+cp -R ${SRC}/node_modules/connect-flash ${DST}/node_modules
 cp -R ${SRC}/node_modules/@terrencecrowley ${DST}/node_modules
 cd ${DST}
 zip -q -r archive.zip .

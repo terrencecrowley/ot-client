@@ -48,6 +48,8 @@ export class ClientSession
 {
 	context: OT.IExecutionContext;
 	sessionID: string;
+	sessionView: any;
+	pendingType: string;
 	clientID: string;
 	clientEngine: OT.OTClientEngine;
 	bConnected: boolean;
@@ -73,6 +75,8 @@ export class ClientSession
 		{
 			this.context = ctx;
 			this.sessionID = '';
+			this.sessionView = {};
+			this.pendingType = '';
 			this.clientID = '';
 			this.clientEngine = null;
 			this.bConnected = true;	// Fact that page was loaded means we were initially connected
@@ -131,8 +135,8 @@ export class ClientSession
 
 	notifyStatusChange(): void
 		{
-			for (let i: number = 0; i < this.onChangeList.length; i++)
-				(this.onChangeList[i])(this);
+			for (let i: number = 0; i < this.onStatusList.length; i++)
+				(this.onStatusList[i])(this);
 		}
 
 	notifyJoin(): void
@@ -191,7 +195,7 @@ export class ClientSession
 			if (this.user.name === undefined && !this.baPending[ReqUser])
 				this.start(ReqUser);
 
-			// If was full, keep trying to join, but not to aggressively
+			// If was full, keep trying to join, but not too aggressively
 			if (this.bFull)
 			{
 				this.speed.slowDown();
@@ -206,8 +210,8 @@ export class ClientSession
 			else if (this.sessionID != '' && !this.baPending[ReqJoin])
 				this.start(ReqJoin);
 
-			// If we have no session, create one
-			else if (this.sessionID == '' && !this.baPending[ReqCreate])
+			// If we have no session, and we want one of a specific type, create one
+			else if (this.sessionID == '' && this.pendingType != '' && !this.baPending[ReqCreate])
 				this.start(ReqCreate);
 		}
 
@@ -217,14 +221,18 @@ export class ClientSession
 			this.tick();
 		}
 
-	reset(): void
+	reset(pendingType: string): void
 		{
 			this.cancel();
 			this.sessionID = '';
-			this.clientID = '';
+			this.sessionView = {};
+			if (pendingType == '')
+				this.user = {};	// force user refetch so we render with fresh data
+			this.pendingType = pendingType;
 			this.clientEngine = null;
 			this.nStateStamp++;
 			this.notifyJoin();
+			this.notifyStatusChange();
 			this.tick();
 		}
 
@@ -263,19 +271,39 @@ export class ClientSession
 					break;
 
 				case ReqCreate:
-					this.setReachable(false);
-					this.setFull(false);
-					$.post("/api/sessions/create")
+					{
+						this.setReachable(false);
+						this.setFull(false);
+						let data: any = { sessionType: this.pendingType };
+						$.ajax("/api/sessions/create",
+							{
+								"method": "POST",
+								"contentType": "application/json; charset=UTF-8",
+								"data": JSON.stringify(data),
+								"processData": false,
+								"dataType": "json"
+							})
 						.done(function(result) { cs.done(ReqCreate, result); })
 						.fail(function() { cs.fail(ReqCreate); })
 						.always(function() { cs.complete(ReqCreate); })
+					}
 					break;
 
 				case ReqJoin:
-					$.post("/api/sessions/connect/" + this.sessionID)
-						.done(function(result) { cs.done(ReqJoin, result); })
-						.fail(function() { cs.fail(ReqJoin); })
-						.always(function() { cs.complete(ReqJoin); })
+					{
+						let data: any = { clientID: this.clientID };
+						$.ajax("/api/sessions/connect/" + this.sessionID,
+							{
+								"method": "POST",
+								"contentType": "application/json; charset=UTF-8",
+								"data": JSON.stringify(data),
+								"processData": false,
+								"dataType": "json"
+							})
+							.done(function(result) { cs.done(ReqJoin, result); })
+							.fail(function() { cs.fail(ReqJoin); })
+							.always(function() { cs.complete(ReqJoin); })
+					}
 					break;
 
 				case ReqSendEdit:
@@ -336,7 +364,10 @@ export class ClientSession
 					if (nResult != 0)
 						this.context.log(1, "user view succeeded but non-zero result status: " + String(nResult));
 					else if (result.user)
+					{
 						this.user = result.user;
+						this.notifyStatusChange();
+					}
 					break;
 
 				case ReqCreate:
@@ -346,7 +377,9 @@ export class ClientSession
 					{
 						this.setReachable(true);
 						this.setFull(false);
-						this.sessionID = result.session_id;
+						this.sessionView = result.view;
+						this.sessionID = this.sessionView.sessionID;
+						this.pendingType = '';
 
 						// And immediately join
 						this.tick();
@@ -363,6 +396,7 @@ export class ClientSession
 					{
 						this.setFull(false);
 						this.clientID = result.clientID;
+						this.sessionView = result.view;
 						this.clientEngine = new OT.OTClientEngine(this.context, this.sessionID, this.clientID);
 						if (result.userName)
 						{
