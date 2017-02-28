@@ -5,7 +5,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Board from "./board";
 import * as ScratchControl from "./scratchcontrol";
-import * as DoodleControl from "./doodlecontrol";
+import * as AgreeControl from "./agreecontrol";
 import * as ChatControl from "./chatcontrol";
 import * as BoardControl from "./boardcontrol";
 import * as StatusControl from "./statuscontrol";
@@ -61,8 +61,8 @@ class Actions implements ClientActions.IClientActions
 					this.app.actionNewChess();
 					break;
 
-				case ClientActions.NewDoodle:
-					this.app.actionNewDoodle();
+				case ClientActions.NewAgree:
+					this.app.actionNewAgree();
 					break;
 
 				case ClientActions.ToggleChat:
@@ -84,7 +84,7 @@ class App
 	statusControl: StatusControl.StatusControl;
 	sessionControl: SessionC.SessionControl;
 	scratchControl: ScratchControl.ScratchControl;
-	doodleControl: DoodleControl.DoodleControl;
+	agreeControl: AgreeControl.AgreeControl;
 	chatControl: ChatControl.ChatControl;
 	boardControl: BoardControl.BoardControl;
 
@@ -111,7 +111,7 @@ class App
 
 			this.sessionControl = new SessionC.SessionControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.scratchControl = new ScratchControl.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
-			this.doodleControl = new DoodleControl.DoodleControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.agreeControl = new AgreeControl.AgreeControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.boardControl = new BoardControl.BoardControl(this.context, this.clientSession, this.forceRender, this.actions);
 		}
 
@@ -119,7 +119,7 @@ class App
 		{
 			if (this.bRender)
 			{
-				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} doodleControl={this.doodleControl}/>,
+				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
 			}
@@ -185,9 +185,9 @@ class App
 			this.clientSession.reset('scratch');
 		}
 
-	actionNewDoodle(): void
+	actionNewAgree(): void
 		{
-			this.clientSession.reset('doodle');
+			this.clientSession.reset('agree');
 		}
 
 	actionToggleChat(): void

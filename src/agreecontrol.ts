@@ -2,10 +2,10 @@ import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 import * as CS from "./clientsession";
 import * as ClientActions from "./clientactions";
-import * as Doodle from "./doodle";
+import * as Agree from "./agree";
 import * as Util from "./util";
 
-export class DoodleControl
+export class AgreeControl
 {
 	context: OT.IExecutionContext;
 	clientSession: CS.ClientSession;
@@ -13,7 +13,7 @@ export class DoodleControl
 	actions: ClientActions.IClientActions;
 
 	userMap: any;		// User names indexed by clientID
-	doodle: Doodle.Doodle;
+	agree: Agree.Agree;
 
 	// pending local action
 	private editRoot: OT.OTCompositeResource;
@@ -28,7 +28,7 @@ export class DoodleControl
 			this.editRoot = null;
 
 			this.userMap = {};
-			this.doodle = new Doodle.Doodle();
+			this.agree = new Agree.Agree();
 
 			this.assureLocalUser = this.assureLocalUser.bind(this);
 			cs.onJoin('root', this.assureLocalUser);
@@ -54,7 +54,7 @@ export class DoodleControl
 	reset(): void
 		{
 			this.userMap = {};
-			this.doodle = new Doodle.Doodle();
+			this.agree = new Agree.Agree();
 			this.reRender();
 		}
 
@@ -63,7 +63,7 @@ export class DoodleControl
 			if (state === undefined)
 				this.reset();
 			else
-				this.doodle.meta = state;
+				this.agree.meta = state;
 			this.reRender();
 		}
 
@@ -72,7 +72,7 @@ export class DoodleControl
 			if (state === undefined)
 				this.reset();
 			else
-				this.doodle.users = state;
+				this.agree.users = state;
 			this.reRender();
 		}
 
@@ -81,7 +81,7 @@ export class DoodleControl
 			if (state === undefined)
 				this.reset();
 			else
-				this.doodle.choices = state as Doodle.SyncChoice[];
+				this.agree.choices = state as Agree.SyncChoice[];
 			this.reRender();
 		}
 
@@ -90,7 +90,7 @@ export class DoodleControl
 			if (state === undefined)
 				this.reset();
 			else
-				this.doodle.selects = state;
+				this.agree.selects = state;
 			this.reRender();
 		}
 
@@ -128,19 +128,19 @@ export class DoodleControl
 
 	notifyLocal_setName(s: string): void
 		{
-			if (s != this.doodle.meta.name)
+			if (s != this.agree.meta.name)
 				this.notifyLocal_setProp(CS.MetaResource, 'name', s);
 		}
 
 	notifyLocal_setType(s: string): void
 		{
-			if (s != this.doodle.meta.dtype)
+			if (s != this.agree.meta.dtype)
 				this.notifyLocal_setProp(CS.MetaResource, 'dtype', s);
 		}
 
 	notifyLocal_setUser(sid: string, name: string): void
 		{
-			if (this.doodle.users[sid] === undefined || this.doodle.users[sid] != name)
+			if (this.agree.users[sid] === undefined || this.agree.users[sid] != name)
 				this.notifyLocal_setProp('users', sid, name);
 		}
 
@@ -150,32 +150,32 @@ export class DoodleControl
 			if (cs.bInSession && cs.user.id && cs.user.name)
 			{
 				let meSID: string = cs.user.ns + '/' + cs.user.id;
-				if (this.doodle.users[meSID] === undefined)
+				if (this.agree.users[meSID] === undefined)
 					this.notifyLocal_setUser(meSID, cs.user.name);
 			}
 		}
 
-	notifyLocal_setChoice(choice: Doodle.SyncChoice): void
+	notifyLocal_setChoice(choice: Agree.SyncChoice): void
 		{
 			if (this.clientSession.bInSession)
 			{
 				this.notifyLocal_start();
 				let editChoices: OT.OTArrayResource = new OT.OTArrayResource('choices');
 				let i: number = 0;
-				for (; i < this.doodle.choices.length; i++)
+				for (; i < this.agree.choices.length; i++)
 				{
-					let c: Doodle.SyncChoice = this.doodle.choices[i];
+					let c: Agree.SyncChoice = this.agree.choices[i];
 					if (c[0] == choice[0])
 					{
 						if (i)
 							editChoices.edits.push([ OT.OpRetain, i, [] ]);
 						editChoices.edits.push([ OT.OpSet, 1, [ choice ] ]);
-						if (i+1 < this.doodle.choices.length)
+						if (i+1 < this.agree.choices.length)
 							editChoices.edits.push([ OT.OpRetain, i, [] ]);
 						break;
 					}
 				}
-				if (i == this.doodle.choices.length)
+				if (i == this.agree.choices.length)
 				{
 					if (i > 0)
 						editChoices.edits.push([ OT.OpRetain, i, [] ]);
@@ -188,7 +188,7 @@ export class DoodleControl
 
 	notifyLocal_setSelect(prop: string, value: any): void
 		{
-			if (this.doodle.selects[prop] === undefined || this.doodle.selects[prop] != value)
+			if (this.agree.selects[prop] === undefined || this.agree.selects[prop] != value)
 				this.notifyLocal_setProp('selects', prop, value);
 		}
 }

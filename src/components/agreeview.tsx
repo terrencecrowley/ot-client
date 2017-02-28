@@ -1,20 +1,20 @@
 import * as React from "react";
-import * as Doodle from "../doodle";
-import * as DoodleControl from "../doodlecontrol";
+import * as Agree from "../agree";
+import * as AgreeControl from "../agreecontrol";
 import * as Util from "../util";
 
-export interface DoodleProps {
-	dc: DoodleControl.DoodleControl
+export interface AgreeProps {
+	dc: AgreeControl.AgreeControl
 }
 
-export interface DoodleState {
+export interface AgreeState {
 	bEditingChoice: boolean,
 	sChoice: string,
 	bEditingName: boolean,
 	sName: string
 }
 
-export class DoodleView extends React.Component<DoodleProps, DoodleState> {
+export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 
 	textInput: any;
 
@@ -96,16 +96,16 @@ export class DoodleView extends React.Component<DoodleProps, DoodleState> {
 
 	handleSelectClick(e: any): boolean
 		{
-			let dc: DoodleControl.DoodleControl = this.props.dc;
-			let doodle: Doodle.Doodle = dc.doodle;
+			let dc: AgreeControl.AgreeControl = this.props.dc;
+			let agree: Agree.Agree = dc.agree;
 			this.handleTextReturn();
-			dc.notifyLocal_setSelect(e.currentTarget.id, doodle.nextSelection(e.currentTarget.id));
+			dc.notifyLocal_setSelect(e.currentTarget.id, agree.nextSelection(e.currentTarget.id));
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
 		}
 
-	componentDidUpdate(oldProps: DoodleProps, oldState: DoodleState): void
+	componentDidUpdate(oldProps: AgreeProps, oldState: AgreeState): void
 		{
 			if (this.state.bEditingName && this.textInput)
 				this.textInput.focus();
@@ -115,37 +115,37 @@ export class DoodleView extends React.Component<DoodleProps, DoodleState> {
 
 	render()
 		{
-			let doodle: Doodle.Doodle = this.props.dc.doodle;
-			let state: DoodleState = this.state;
+			let agree: Agree.Agree = this.props.dc.agree;
+			let state: AgreeState = this.state;
 			let rows: any[] = [];
 			let row: any[] = [];
 
 			// Header Row
-			row.push(<div className={'doodleRowHeader doodleColHeader doodleEmpty'}></div>);
-			for (let i: number = 0; i < doodle.choices.length; i++)
+			row.push(<div className={'agreeRowHeader agreeColHeader agreeEmpty'}></div>);
+			for (let i: number = 0; i < agree.choices.length; i++)
 			{
-				let c: Doodle.SyncChoice = doodle.choices[i];
-				row.push( <div className={'doodleColHeader'} id={c[0]} onClick={this.handleChoiceClick}>{c[2]}</div>);
+				let c: Agree.SyncChoice = agree.choices[i];
+				row.push( <div className={'agreeColHeader'} id={c[0]} onClick={this.handleChoiceClick}>{c[2]}</div>);
 			}
 			if (state.bEditingChoice)
 				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingchoice" type="text" value={this.state.sChoice} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
 			else
-				row.push( <div className={'doodleColHeader'} id='' onClick={this.handleChoiceClick}>+&nbsp;Choice</div>);
+				row.push( <div className={'agreeColHeader'} id='' onClick={this.handleChoiceClick}>+&nbsp;Choice</div>);
 			rows.push(<div className='tablerow'>{row}</div>);
 
 			// Row for each user
-			let users: any[] = doodle.getUserList();
+			let users: any[] = agree.getUserList();
 			for (let j: number = 0; j < users.length; j++)
 			{
 				let u: any = users[j];
 				row = [];
-				row.push(<div className={'doodleRowHeader'} id={u.id} onClick={this.handleUserClick}>{u.name}</div>);
-				for (let k: number = 0; k < doodle.choices.length; k++)
+				row.push(<div className={'agreeRowHeader'} id={u.id} onClick={this.handleUserClick}>{u.name}</div>);
+				for (let k: number = 0; k < agree.choices.length; k++)
 				{
-					let c: Doodle.SyncChoice = doodle.choices[k];
+					let c: Agree.SyncChoice = agree.choices[k];
 					let id: string = u.id + '/' + c[0];
-					let val: number = doodle.selects[id] === undefined ? -1 : doodle.selects[id];
-					let classString: string = 'doodleMain';
+					let val: number = agree.selects[id] === undefined ? -1 : agree.selects[id];
+					let classString: string = 'agreeMain';
 					switch (val)
 					{
 						case 0: classString += ' ShowNo'; break;
@@ -155,7 +155,7 @@ export class DoodleView extends React.Component<DoodleProps, DoodleState> {
 					}
 					row.push(<div className={classString} id={id} onClick={this.handleSelectClick}>&nbsp;</div>);
 				}
-				row.push(<div className={'doodleEmpty'} id=''></div>);
+				row.push(<div className={'agreeEmpty'} id=''></div>);
 				rows.push(<div className='tablerow'>{row}</div>);
 			}
 
@@ -164,8 +164,8 @@ export class DoodleView extends React.Component<DoodleProps, DoodleState> {
 			if (state.bEditingName)
 				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingname" type="text" value={this.state.sName} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
 			else
-				row.push(<div className={'doodleRowHeader'} id='' onClick={this.handleUserClick}>+&nbsp;User</div>);
-			for (let k: number = 0; k <= doodle.choices.length; k++) row.push(<div className={'doodleEmpty'}></div>);
+				row.push(<div className={'agreeRowHeader'} id='' onClick={this.handleUserClick}>+&nbsp;User</div>);
+			for (let k: number = 0; k <= agree.choices.length; k++) row.push(<div className={'agreeEmpty'}></div>);
 			rows.push(<div className='tablerow'>{row}</div>);
 
 			// Full grid

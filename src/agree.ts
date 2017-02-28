@@ -1,6 +1,6 @@
 export type SyncChoice = [ string, string, string, string ];	// UID, type, start, end (type is "time", "place", "enum")
 
-export class Doodle
+export class Agree
 {
 	// OT synchronized state
 	meta: any;				// { name, dtype }			OTMap("meta")

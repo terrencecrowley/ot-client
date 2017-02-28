@@ -71,7 +71,7 @@ td {
 	background-size: contain;
 }
 
-.doodleRowHeader {
+.agreeRowHeader {
 	background-color: #1118B9;
 	color: white;
 	flex-grow: 1;
@@ -87,7 +87,7 @@ td {
 	display: table-cell;
 }
 
-.doodleColHeader {
+.agreeColHeader {
 	background-color: #1118B9;
 	color: white;
 	flex-grow: 1;
@@ -103,7 +103,7 @@ td {
 	display: table-cell;
 }
 
-.doodleMain {
+.agreeMain {
 	background-color: #BCBFEF;
 	flex-grow: 1;
 	width: 100%;
@@ -117,7 +117,7 @@ td {
 	display: table-cell;
 }
 
-.doodleEmpty {
+.agreeEmpty {
 	background-color: #E7E8F2;
 	flex-grow: 1;
 	width: 100%;
@@ -244,7 +244,7 @@ input, textarea {
 	overflow-y: scroll;
 }
 
-.doodleinput {
+.agreeinput {
 	border-width: 2px;
 	border-color: black;
 	border-style: solid;
