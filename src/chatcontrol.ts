@@ -29,13 +29,13 @@ export class ChatControl
 			this.notifyChatChange = this.notifyChatChange.bind(this);
 			this.notifyUserChange = this.notifyUserChange.bind(this);
 			this.notifyLocalChange = this.notifyLocalChange.bind(this);
-			cs.onChange('chat', this.notifyChatChange);
-			cs.onChange('WellKnownName_users', this.notifyUserChange);
+			cs.onData('chat', this.notifyChatChange);
+			cs.onData('WellKnownName_users', this.notifyUserChange);
 		}
 
 	get chatDisabled(): boolean
 		{
-			return this.clientSession.sessionID == '';
+			return ! this.clientSession.bInSession;
 		}
 
 	navText(): string
@@ -73,30 +73,37 @@ export class ChatControl
 
 	notifyChatChange(cs: CS.ClientSession, chatArray: any)
 		{
-			this.chatArray = chatArray;
-			if (this.bChatOn)
-				this.nChatSeen = this.chatArray.length;
+			if (chatArray === undefined)
+				this.reset();
+			else
+			{
+				this.chatArray = chatArray;
+				if (this.bChatOn)
+					this.nChatSeen = this.chatArray.length;
+			}
 			this.reRender();
 		}
 
 	notifyUserChange(cs: CS.ClientSession, userMap: any)
 		{
-			this.userMap = userMap;
+			if (userMap === undefined)
+				this.reset();
+			else
+				this.userMap = userMap;
 			this.reRender();
 		}
 
 	notifyLocalChange(s: string): void
 		{
-			let cs: CS.ClientSession = this.clientSession;
-			if (cs.clientEngine)
+			let css: CS.ClientSessionState = this.clientSession.session;
+			if (css.bInSession)
 			{
-				let editRoot: OT.OTCompositeResource = new OT.OTCompositeResource(cs.sessionID, cs.clientID);
+				let editRoot: OT.OTCompositeResource = css.startLocalEdit();
 				let editChat: OT.OTArrayResource = new OT.OTArrayResource('chat');
 				editChat.edits.push([ OT.OpRetain, this.chatArray.length, [ [ ] ] ]);
-				editChat.edits.push([ OT.OpInsert, 1, [ [ cs.clientID, s ] ] ]);
+				editChat.edits.push([ OT.OpInsert, 1, [ [ this.clientSession.clientID, s ] ] ]);
 				editRoot.edits.push(editChat);
-				cs.clientEngine.addLocal(editRoot);
-				cs.tick();
+				css.addLocal(editRoot);
 				this.reRender();
 			}
 		}

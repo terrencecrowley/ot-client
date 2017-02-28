@@ -1,0 +1,174 @@
+import * as React from "react";
+import * as Doodle from "../doodle";
+import * as DoodleControl from "../doodlecontrol";
+import * as Util from "../util";
+
+export interface DoodleProps {
+	dc: DoodleControl.DoodleControl
+}
+
+export interface DoodleState {
+	bEditingChoice: boolean,
+	sChoice: string,
+	bEditingName: boolean,
+	sName: string
+}
+
+export class DoodleView extends React.Component<DoodleProps, DoodleState> {
+
+	textInput: any;
+
+	constructor(props: any)
+		{
+			super(props);
+			this.textInput = null;
+			this.handleClick = this.handleClick.bind(this);
+			this.handleChoiceClick = this.handleChoiceClick.bind(this);
+			this.handleUserClick = this.handleUserClick.bind(this);
+			this.handleSelectClick = this.handleSelectClick.bind(this);
+			this.handleTextChange = this.handleTextChange.bind(this);
+			this.handleTextReturn = this.handleTextReturn.bind(this);
+			this.state = { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' };
+		}
+
+	handleTextChange(event: any): void
+		{
+			if (this.state.bEditingChoice)
+			{
+				this.setState( { bEditingChoice: true, sChoice: event.target.value, bEditingName: false, sName: '' } );
+			}
+			else if (this.state.bEditingName)
+			{
+				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: true, sName: event.target.value } );
+			}
+		}
+
+	handleTextReturn(event?: any): void
+		{
+			if (event !== undefined && event.charCode != 13)
+				return;
+
+			let val: string = (event === undefined) ? (this.state.bEditingChoice
+														? this.state.sChoice
+														: this.state.bEditingName ? this.state.sName : '')
+													: event.target.value;
+			if (this.state.bEditingChoice)
+			{
+				if (val != '')
+					this.props.dc.notifyLocal_setChoice([ Util.createGuid(), 'enum', val, '' ]);
+				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
+			}
+			else if (this.state.bEditingName)
+			{
+				if (val != '')
+					this.props.dc.notifyLocal_setUser('anom/' + Util.createGuid(), val);
+				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
+			}
+		}
+
+	handleClick(e: any): boolean
+		{
+			this.handleTextReturn();
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	handleChoiceClick(e: any): boolean
+		{
+			this.handleTextReturn();
+			if (e.currentTarget.id == '')
+				this.setState( { bEditingChoice: true, sChoice: '', bEditingName: false, sName: '' } );
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	handleUserClick(e: any): boolean
+		{
+			this.handleTextReturn();
+			if (e.currentTarget.id == '')
+				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: true, sName: '' } );
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	handleSelectClick(e: any): boolean
+		{
+			let dc: DoodleControl.DoodleControl = this.props.dc;
+			let doodle: Doodle.Doodle = dc.doodle;
+			this.handleTextReturn();
+			dc.notifyLocal_setSelect(e.currentTarget.id, doodle.nextSelection(e.currentTarget.id));
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	componentDidUpdate(oldProps: DoodleProps, oldState: DoodleState): void
+		{
+			if (this.state.bEditingName && this.textInput)
+				this.textInput.focus();
+			else if (this.state.bEditingChoice && this.textInput)
+				this.textInput.focus();
+		}
+
+	render()
+		{
+			let doodle: Doodle.Doodle = this.props.dc.doodle;
+			let state: DoodleState = this.state;
+			let rows: any[] = [];
+			let row: any[] = [];
+
+			// Header Row
+			row.push(<div className={'doodleRowHeader doodleColHeader doodleEmpty'}></div>);
+			for (let i: number = 0; i < doodle.choices.length; i++)
+			{
+				let c: Doodle.SyncChoice = doodle.choices[i];
+				row.push( <div className={'doodleColHeader'} id={c[0]} onClick={this.handleChoiceClick}>{c[2]}</div>);
+			}
+			if (state.bEditingChoice)
+				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingchoice" type="text" value={this.state.sChoice} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
+			else
+				row.push( <div className={'doodleColHeader'} id='' onClick={this.handleChoiceClick}>+&nbsp;Choice</div>);
+			rows.push(<div className='tablerow'>{row}</div>);
+
+			// Row for each user
+			let users: any[] = doodle.getUserList();
+			for (let j: number = 0; j < users.length; j++)
+			{
+				let u: any = users[j];
+				row = [];
+				row.push(<div className={'doodleRowHeader'} id={u.id} onClick={this.handleUserClick}>{u.name}</div>);
+				for (let k: number = 0; k < doodle.choices.length; k++)
+				{
+					let c: Doodle.SyncChoice = doodle.choices[k];
+					let id: string = u.id + '/' + c[0];
+					let val: number = doodle.selects[id] === undefined ? -1 : doodle.selects[id];
+					let classString: string = 'doodleMain';
+					switch (val)
+					{
+						case 0: classString += ' ShowNo'; break;
+						case 1: classString += ' ShowYes'; break;
+						case 2: classString += ' ShowMaybe'; break;
+						case 3: classString += ' ShowPicked'; break;
+					}
+					row.push(<div className={classString} id={id} onClick={this.handleSelectClick}>&nbsp;</div>);
+				}
+				row.push(<div className={'doodleEmpty'} id=''></div>);
+				rows.push(<div className='tablerow'>{row}</div>);
+			}
+
+			// Row for new user
+			row = [];
+			if (state.bEditingName)
+				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingname" type="text" value={this.state.sName} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
+			else
+				row.push(<div className={'doodleRowHeader'} id='' onClick={this.handleUserClick}>+&nbsp;User</div>);
+			for (let k: number = 0; k <= doodle.choices.length; k++) row.push(<div className={'doodleEmpty'}></div>);
+			rows.push(<div className='tablerow'>{row}</div>);
+
+			// Full grid
+			return (<div className='table'>{rows}</div>);
+		}
+}

@@ -24,7 +24,7 @@ export class BoardControl
 			this.board = new Board.Board();
 			this.moves = [];
 			this.notifyBoardChange = this.notifyBoardChange.bind(this);
-			cs.onChange('chess', this.notifyBoardChange);
+			cs.onData('chess', this.notifyBoardChange);
 		}
 
 	navText(): string
@@ -43,8 +43,13 @@ export class BoardControl
 
 	notifyBoardChange(cs: CS.ClientSession, moves: any)
 		{
-			this.moves = moves;
-			this.syncMoves();
+			if (moves === undefined)
+				this.reset();
+			else
+			{
+				this.moves = moves;
+				this.syncMoves();
+			}
 		}
 
 	syncMoves(): void
@@ -64,10 +69,10 @@ export class BoardControl
 			// If local number of moves is larger, share those moves
 			else if (nLocalMoves > nRemoteMoves)
 			{
-				let cs: CS.ClientSession = this.clientSession;
-				if (cs.clientEngine)
+				let css: CS.ClientSessionState = this.clientSession.session;
+				if (css.clientEngine)
 				{
-					let editRoot: OT.OTCompositeResource = new OT.OTCompositeResource(cs.sessionID, cs.clientID);
+					let editRoot = css.startLocalEdit();
 					let editMoves: OT.OTArrayResource = new OT.OTArrayResource('chess');
 					editMoves.edits.push([ OT.OpRetain, this.moves.length, [] ]);
 					for (let i: number = nRemoteMoves; i < this.board.Moves.length; i++)
@@ -76,8 +81,8 @@ export class BoardControl
 						editMoves.edits.push([ OT.OpInsert, 2, [ m[0], m[2] ] ]);
 					}
 					editRoot.edits.push(editMoves);
-					cs.clientEngine.addLocal(editRoot);
-					cs.tick();
+					css.addLocal(editRoot);
+					css.tick();
 				}
 			}
 			this.reRender();

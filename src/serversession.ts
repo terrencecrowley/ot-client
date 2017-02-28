@@ -1,17 +1,10 @@
 import * as OT from '@terrencecrowley/ot-js';
 import * as fs from 'fs';
 import * as UM from "./users";
+import * as Util from "./util";
 
 const StateVersion: number = 6.0;
-const ClientIDForServer: string = '-';
-
-function createGuid(): string
-{
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
-		return v.toString(16);
-	});
-}
+const ClientIDForServer: string = '-Server-';
 
 const clientQuiescentTimeout: number = process.env.CLIENT_QUIESCENT_TIMEOUT || 20000; // 20 seconds
 const sessionQuiescentTimeout: number = process.env.SESSION_QUIESCENT_TIMEOUT || 6000000; // 100 minutes
@@ -101,8 +94,6 @@ export class Client
 export class Session
 {
 	sessionID: string;
-	sessionName: string;
-	sessionType: string;
 	serverEngine: OT.OTServerEngine;
 	clients: Client[];
 	private context: ServerContext;
@@ -116,9 +107,7 @@ export class Session
 	constructor(ctx: ServerContext)
 		{
 			this.context = ctx;
-			this.sessionID = createGuid();
-			this.sessionName = '';
-			this.sessionType = '';
+			this.sessionID = Util.createGuid();
 			this.serverEngine = new OT.OTServerEngine(ctx, this.sessionID);
 			this.clients = [];
 			this.lastActive = new Date();
@@ -143,7 +132,7 @@ export class Session
 
 	getUserList(): any
 		{
-			let val: any = this.serverEngine.stateServer.toValue();
+			let val: any = this.serverEngine.toValue();
 			val = val ? val['WellKnownName_users'] : val;
 			if (val == null) val = { };
 			return val;
@@ -214,7 +203,7 @@ export class Session
 			}
 			else
 			{
-				let clientID: any = req.body.clientID ? req.body.clientID : createGuid();
+				let clientID: any = req.body.clientID ? req.body.clientID : Util.createGuid();
 				let client: Client = this.findClient(clientID, req.user).markAlive();
 				this.context.log(0, "session(" + this.sessionID + "): creating client(" + client.clientID + ")");
 				responseBody = { result: 0, clientID: client.clientID, view: this.toView() };
@@ -347,8 +336,8 @@ export class Session
 			let o: any =
 				{
 					sessionID: this.sessionID,
-					sessionName: this.sessionName,
-					sessionType: this.sessionType,
+					sessionName: this.serverEngine.getName(),
+					sessionType: this.serverEngine.getType(),
 					lastActive: this.lastActive.toJSON(),
 					clientCount: this.clients.length,
 					maxClients: this.statMaxClients,
@@ -361,8 +350,6 @@ export class Session
 		{
 			return { 
 				sessionID: this.sessionID,
-				sessionName: this.sessionName,
-				sessionType: this.sessionType,
 				lastActive: this.lastActive.toJSON(),
 				maxClients: this.statMaxClients,
 				engine: this.serverEngine.toJSON()
@@ -372,8 +359,6 @@ export class Session
 	fromJSON(o: any): void
 		{
 			this.sessionID = o.sessionID;
-			this.sessionName = o.sessionName;
-			this.sessionType = o.sessionType;
 			this.lastActive = new Date(o.lastActive);
 			this.statMaxClients = o.statMaxClients;
 			this.serverEngine.loadFromObject(o.engine);
@@ -443,13 +428,11 @@ export class SessionManager
 		}
 
 	// Create
-		// IN: { sessionType: type }
+		// IN: {  }
 		// OUT: { result: 0, session_id: string }
 	createSession(req: any, res: any): void
 		{
 			let session: Session = new Session(this.context);
-			if (req.body.sessionType !== undefined)
-				session.sessionType = req.body.sessionType;
 			this.sessions.push(session);
 			this.sessionMap[session.sessionID] = session;
 			let responseBody: any = { result: 0, view: session.toView() };
@@ -474,37 +457,6 @@ export class SessionManager
 				let responseBody: any = { "result": 1, "message": "connectSession: no such session: " + session_id };
 				this.context.log(1, "connectSession: " + JSON.stringify(responseBody));
 				res.json(responseBody);
-			}
-			this.setHousekeepingTimer();
-		}
-
-	// Name Session
-		// IN: { sessionName: string }
-		// OUT: { result: [0,1] }
-	nameSession(req: any, res: any, session_id: string): void
-		{
-			if (req.body.sessionName === undefined)
-			{
-				let responseBody: any = { result: 1, message: "nameSession: no sessionName specified." };
-				this.context.log(1, "nameSession: " + JSON.stringify(responseBody));
-				res.json(responseBody);
-			}
-			else
-			{
-				let session: Session = this.findSession(session_id);
-				if (session)
-				{
-					session.sessionName = req.body.sessionName;
-					let responseBody: any = { result: 0 };
-					res.json(responseBody);
-					this.bDirty = true;
-				}
-				else
-				{
-					let responseBody: any = { result: 1, message: "nameSession: no such session: " + session_id };
-					this.context.log(1, "nameSession: " + JSON.stringify(responseBody));
-					res.json(responseBody);
-				}
 			}
 			this.setHousekeepingTimer();
 		}

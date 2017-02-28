@@ -51,10 +51,10 @@ app.use('/scripts', express.static('clientdist'));
 // Authentication and user management
 let FacebookStrategy = passport_facebook.Strategy;
 passport.serializeUser(function(user: UM.User, done: any) {
-	done(null, user.id);
+	done(null, user.serializedID());
 	});
-passport.deserializeUser(function(id: any, done: any) {
-	let user: UM.User = sessionManager.users.findByID(id);
+passport.deserializeUser(function(sid: any, done: any) {
+	let user: UM.User = sessionManager.users.findBySerializedID(sid);
 	done(null, user);
 	});
 passport.use(new FacebookStrategy(
@@ -68,12 +68,12 @@ passport.use(new FacebookStrategy(
 		function(token, refreshToken, profile, done) {
 
 			process.nextTick(function() {
-				let user: UM.User = sessionManager.users.findByID(profile.id);
+				let user: UM.User = sessionManager.users.findByID('facebook', profile.id);
 				if (user)
 					return done(null, user);
 				else
 				{
-					let o: any = { id: profile.id, token: token };
+					let o: any = { ns: 'facebook', id: profile.id, token: token };
 					if (profile.name)
 						o.name = profile.name.givenName + ' ' + profile.name.familyName;
 					else
@@ -81,7 +81,7 @@ passport.use(new FacebookStrategy(
 					if (profile.emails)
 						o.email = profile.emails[0].value;
 					else
-						o.email = "someone@anywhere.com";
+						o.email = 'someone@anywhere.com';
 					user = sessionManager.users.createUser(o);
 					done(null, user);
 				}
@@ -100,7 +100,7 @@ function isLoggedIn(req: any, res: any, next: any) {
 function isLoggedInAPI(req: any, res: any, next: any) {
 	if (req.user)
 		return next();
-	res.sendStatus(401);
+	res.sendStatus(401); // Unauthorized
 }
   
 // Authenticated pages
@@ -165,12 +165,6 @@ router.route('/sessions/connect/:session_id')
 	.post(isLoggedInAPI, function(req, res) {
 		serverContext.log(1, "connectSession");
 		sessionManager.connectSession(req, res, req.params.session_id);
-		});
-
-router.route('/sessions/name/:session_id')
-	.post(isLoggedInAPI, function(req, res) {
-		serverContext.log(1, "nameSession");
-		sessionManager.nameSession(req, res, req.params.session_id);
 		});
 
 router.route('/sessions/sendevent/:session_id')

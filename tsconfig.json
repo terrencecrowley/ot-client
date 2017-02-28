@@ -14,13 +14,15 @@
 		"src/doodlecontrol.ts",
 		"src/boardcontrol.ts",
 		"src/users.ts",
+		"src/util.ts",
 		"src/components/statusview.tsx",
 		"src/components/sessionview.tsx",
 		"src/components/chatview.tsx",
 		"src/components/app.tsx",
 		"src/components/navbar.tsx",
 		"src/components/scratchview.tsx",
-		"src/components/boardview.tsx"
+		"src/components/boardview.tsx",
+		"src/components/doodleview.tsx"
 	],
 
 	"compilerOptions": {

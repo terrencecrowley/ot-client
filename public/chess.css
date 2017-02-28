@@ -28,6 +28,10 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 .BlackKnight { background-image: url('./BlackKnight.png'); }
 .BlackRook { background-image: url('./BlackRook.png'); }
 .BlackPawn { background-image: url('./BlackPawn.png'); }
+.ShowYes { background-image: url('./ShowYes.png'); }
+.ShowNo { background-image: url('./ShowNo.png'); }
+.ShowMaybe { background-image: url('./ShowMaybe.png'); }
+.ShowPicked { background-image: url('./ShowPicked.png'); }
 
 td {
 	border-style: solid;
@@ -67,6 +71,66 @@ td {
 	background-size: contain;
 }
 
+.doodleRowHeader {
+	background-color: #1118B9;
+	color: white;
+	flex-grow: 1;
+	width: 100%;
+	text-align: center;
+	white-space: nowrap;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	display: table-cell;
+}
+
+.doodleColHeader {
+	background-color: #1118B9;
+	color: white;
+	flex-grow: 1;
+	width: 100%;
+	min-width: 6em;
+	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	display: table-cell;
+}
+
+.doodleMain {
+	background-color: #BCBFEF;
+	flex-grow: 1;
+	width: 100%;
+	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	display: table-cell;
+}
+
+.doodleEmpty {
+	background-color: #E7E8F2;
+	flex-grow: 1;
+	width: 100%;
+	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	display: table-cell;
+}
+
 .pieceTable {
 	text-align: center;
 	vertical-align: middle;
@@ -80,6 +144,14 @@ td {
 
 .whitePiece {
 	color: white;
+}
+
+.table {
+	display: table;
+}
+
+.tablerow {
+	display: table-row;
 }
 
 body {
@@ -170,6 +242,15 @@ input, textarea {
 	border-style: solid;
 	flex-grow: 1;
 	overflow-y: scroll;
+}
+
+.doodleinput {
+	border-width: 2px;
+	border-color: black;
+	border-style: solid;
+	margin-top: 2px;
+	flex-grow: 0;
+	width: 6em;
 }
 
 .chatinput {

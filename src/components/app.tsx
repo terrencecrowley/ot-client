@@ -5,12 +5,14 @@ import { StatusView } from "./statusview";
 import { ChatView } from "./chatview";
 import { ScratchView } from "./scratchview";
 import { SessionView } from "./sessionview";
+import { DoodleView } from "./doodleview";
 import { IClientActions } from "../clientactions";
 
 import * as SessionControl from "../sessioncontrol";
 import * as BoardControl from "../boardcontrol";
 import * as ChatControl from "../chatcontrol";
 import * as ScratchControl from "../scratchcontrol";
+import * as DoodleControl from "../doodlecontrol";
 
 export interface AppProps {
 		mode: string,
@@ -21,7 +23,8 @@ export interface AppProps {
 		sessionControl: SessionControl.SessionControl,
 		chatControl: ChatControl.ChatControl,
 		boardControl: BoardControl.BoardControl,
-		scratchControl: ScratchControl.ScratchControl
+		scratchControl: ScratchControl.ScratchControl,
+		doodleControl: DoodleControl.DoodleControl
 		}
 
 export class ReactApp extends React.Component<AppProps, {}> {
@@ -42,6 +45,10 @@ export class ReactApp extends React.Component<AppProps, {}> {
 
 				case 'scratch':
 					cmpMain = <ScratchView sc={this.props.scratchControl} />;
+					break;
+
+				case 'doodle':
+					cmpMain = <DoodleView dc={this.props.doodleControl} />;
 					break;
 
 				default:

@@ -1,6 +1,8 @@
 import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 
+export let MetaResource: string = "WellKnownName_meta";
+
 export class SpeedManager
 {
 	private _Speed: number;
@@ -39,61 +41,67 @@ const ReqUser: number = 4;
 const ReqEdit: number = 5;	// Pseudo request that launches either SendEdit or ReceiveEdit depending on context
 const NRequestTypes: number = 5;
 
-const PhaseStart: number = 0;
-const PhaseDone: number = 1;
-const PhaseFail: number = 2;
-const PhaseComplete: number = 3;
-
-export class ClientSession
+export class ClientSessionState
 {
-	context: OT.IExecutionContext;
 	sessionID: string;
 	sessionView: any;
 	pendingType: string;
-	clientID: string;
 	clientEngine: OT.OTClientEngine;
-	bConnected: boolean;
-	bReachable: boolean;
+	meta: any;
 	bFull: boolean;
+	bReachable: boolean;
 	baPending: boolean[];
+	parent: ClientSession;
 
-	// User properties
-	user: any;
-
-	// Track changes in state
-	nStateStamp: number;
-
-	// Manage speed of server interaction
-	speed: SpeedManager;
-
-	// Registered observers
-	onChangeList: any;
-	onJoinList: any;
-	onStatusList: any;
-
-	constructor(ctx: OT.IExecutionContext)
+	constructor(cs: ClientSession)
 		{
-			this.context = ctx;
+			this.parent = cs;
 			this.sessionID = '';
 			this.sessionView = {};
 			this.pendingType = '';
-			this.clientID = '';
 			this.clientEngine = null;
-			this.bConnected = true;	// Fact that page was loaded means we were initially connected
+			this.meta = {};
 			this.bReachable = false;
 			this.bFull = false;
 			this.baPending = [];
 			for (let i: number = 0; i < NRequestTypes; i++) this.baPending[i] = false;
+		}
 
-			this.user = {};
+	getProp(p: string): string
+		{
+			return this.meta[p];
+		}
 
-			this.nStateStamp = 0;
+	getType(): string
+		{
+			return this.getProp('type');
+		}
 
-			this.speed = new SpeedManager();
+	getName(): string
+		{
+			return this.getProp('name');
+		}
 
-			this.onChangeList = {};
-			this.onJoinList = {};
-			this.onStatusList = [];
+	setProp(p: string, v: string): void
+		{
+			if (this.clientEngine)
+			{
+				let editRoot = this.startLocalEdit();
+				let metaRoot = new OT.OTMapResource(MetaResource);
+				editRoot.edits.push(metaRoot);
+				metaRoot.edits.push([ OT.OpMapSet, p, v ]);
+				this.clientEngine.addLocal(editRoot);
+			}
+		}
+
+	setType(v: string): void
+		{
+			this.setProp('type', v);
+		}
+
+	setName(v: string): void
+		{
+			this.setProp('name', v);
 		}
 
 	get bInSession(): boolean
@@ -106,77 +114,12 @@ export class ClientSession
 			return this.baPending[ReqCreate] || this.baPending[ReqJoin];
 		}
 
-	onChange(resourceName: string, cb: any): void
-		{
-			let aCB: any = this.onChangeList[resourceName];
-			if (aCB === undefined)
-			{
-				aCB = [];
-				this.onChangeList[resourceName] = aCB;
-			}
-			aCB.push(cb);
-		}
-
-	onJoin(resourceName: string, cb: any): void
-		{
-			let aCB: any = this.onJoinList[resourceName];
-			if (aCB === undefined)
-			{
-				aCB = [];
-				this.onJoinList[resourceName] = aCB;
-			}
-			aCB.push(cb);
-		}
-
-	onStatusChange(cb: any): void
-		{
-			this.onStatusList.push(cb);
-		}
-
-	notifyStatusChange(): void
-		{
-			for (let i: number = 0; i < this.onStatusList.length; i++)
-				(this.onStatusList[i])(this);
-		}
-
-	notifyJoin(): void
-		{
-			// OK, let any registered observers know about the session change
-			for (var p in this.onJoinList)
-				if (this.onJoinList.hasOwnProperty(p))
-				{
-					let aCB: any = this.onJoinList[p];
-					for (let i: number = 0; i < aCB.length; i++) (aCB[i])(this);
-				}
-		}
-
-	notifyChange(): void
-		{
-			// OK, now let any registered observers know about the new updates
-			let objVal: any = this.clientEngine.toValue();
-			for (var p in objVal)
-				if (objVal.hasOwnProperty(p) && this.onChangeList[p] != undefined)
-				{
-					let aCB: any = this.onChangeList[p];
-					for (let i: number = 0; i < aCB.length; i++) (aCB[i])(this, objVal[p]);
-				}
-		}
-	
 	setReachable(b: boolean): void
 		{
 			if (b != this.bReachable)
 			{
 				this.bReachable = b;
-				this.notifyStatusChange();
-			}
-		}
-
-	setConnected(b: boolean): void
-		{
-			if (b != this.bConnected)
-			{
-				this.bConnected = b;
-				this.notifyStatusChange();
+				this.parent.notifyStatusChange();
 			}
 		}
 
@@ -185,55 +128,23 @@ export class ClientSession
 			if (b != this.bFull)
 			{
 				this.bFull = b;
-				this.notifyStatusChange();
+				this.parent.notifyStatusChange();
 			}
 		}
 
-	tick(): void
+	startLocalEdit(): OT.OTCompositeResource
 		{
-			// If we don't have a user, fetch it
-			if (this.user.name === undefined && !this.baPending[ReqUser])
-				this.start(ReqUser);
+			return new OT.OTCompositeResource(this.sessionID, this.parent.clientID);
+		}
 
-			// If was full, keep trying to join, but not too aggressively
-			if (this.bFull)
+	addLocal(edit: OT.OTCompositeResource): void
+		{
+			if (this.clientEngine)
 			{
-				this.speed.slowDown();
-				this.start(ReqJoin);
+				this.clientEngine.addLocal(edit);
+				this.tick();
+				this.parent.notifyData();
 			}
-
-			// Otherwise if we are connected to a session, send along any edits
-			else if (this.clientEngine)
-				this.start(ReqEdit);
-
-			// Otherwise if we have a session, join it
-			else if (this.sessionID != '' && !this.baPending[ReqJoin])
-				this.start(ReqJoin);
-
-			// If we have no session, and we want one of a specific type, create one
-			else if (this.sessionID == '' && this.pendingType != '' && !this.baPending[ReqCreate])
-				this.start(ReqCreate);
-		}
-
-	setSession(sessionID: string): void
-		{
-			this.sessionID = sessionID;
-			this.tick();
-		}
-
-	reset(pendingType: string): void
-		{
-			this.cancel();
-			this.sessionID = '';
-			this.sessionView = {};
-			if (pendingType == '')
-				this.user = {};	// force user refetch so we render with fresh data
-			this.pendingType = pendingType;
-			this.clientEngine = null;
-			this.nStateStamp++;
-			this.notifyJoin();
-			this.notifyStatusChange();
-			this.tick();
 		}
 
 	start(req: number): void
@@ -259,22 +170,22 @@ export class ClientSession
 			// Note we have fired this request
 			this.baPending[req] = true;
 
-			let cs: ClientSession = this;
+			let css: ClientSessionState = this;
 
 			switch (req)
 			{
 				case ReqUser:
 					$.post("/api/sessions/userview")
-						.done(function(result) { cs.done(ReqUser, result); })
-						.fail(function() { cs.fail(ReqUser); })
-						.always(function() { cs.complete(ReqUser); })
+						.done(function(result) { css.done(ReqUser, result); })
+						.fail(function() { css.fail(ReqUser); })
+						.always(function() { css.complete(ReqUser); })
 					break;
 
 				case ReqCreate:
 					{
 						this.setReachable(false);
 						this.setFull(false);
-						let data: any = { sessionType: this.pendingType };
+						let data: any = { };
 						$.ajax("/api/sessions/create",
 							{
 								"method": "POST",
@@ -283,15 +194,15 @@ export class ClientSession
 								"processData": false,
 								"dataType": "json"
 							})
-						.done(function(result) { cs.done(ReqCreate, result); })
-						.fail(function() { cs.fail(ReqCreate); })
-						.always(function() { cs.complete(ReqCreate); })
+						.done(function(result) { css.done(ReqCreate, result); })
+						.fail(function() { css.fail(ReqCreate); })
+						.always(function() { css.complete(ReqCreate); })
 					}
 					break;
 
 				case ReqJoin:
 					{
-						let data: any = { clientID: this.clientID };
+						let data: any = { clientID: this.parent.clientID };
 						$.ajax("/api/sessions/connect/" + this.sessionID,
 							{
 								"method": "POST",
@@ -300,16 +211,16 @@ export class ClientSession
 								"processData": false,
 								"dataType": "json"
 							})
-							.done(function(result) { cs.done(ReqJoin, result); })
-							.fail(function() { cs.fail(ReqJoin); })
-							.always(function() { cs.complete(ReqJoin); })
+							.done(function(result) { css.done(ReqJoin, result); })
+							.fail(function() { css.fail(ReqJoin); })
+							.always(function() { css.complete(ReqJoin); })
 					}
 					break;
 
 				case ReqSendEdit:
 					{
 						let edit: OT.OTCompositeResource = this.clientEngine.getPending();
-						let data: any = { "clientID": edit.clientID, "Edit": edit.toJSON() };
+						let data: any = { clientID: this.clientEngine.clientID, "Edit": edit.toJSON() };
 						$.ajax("/api/sessions/sendevent/" + this.sessionID,
 							{
 								"method": "POST",
@@ -318,9 +229,9 @@ export class ClientSession
 								"processData": false,
 								"dataType": "json"
 							})
-							.done(function(result) { cs.done(ReqSendEdit, result); })
-							.fail(function() { cs.fail(ReqSendEdit); })
-							.always(function() { cs.complete(ReqSendEdit); })
+							.done(function(result) { css.done(ReqSendEdit, result); })
+							.fail(function() { css.fail(ReqSendEdit); })
+							.always(function() { css.complete(ReqSendEdit); })
 					}
 					break;
 
@@ -329,15 +240,15 @@ export class ClientSession
 						$.ajax("/api/sessions/receiveevent/" + this.sessionID,
 							{
 								"method": "POST",
-								"data": JSON.stringify({ "clientID": this.clientEngine.clientID,
+								"data": JSON.stringify({ clientID: this.clientEngine.clientID,
 														 "NextClock": this.clientEngine.serverClock() + 1 }),
 								"contentType": "application/json; charset=UTF-8",
 								"processData": false,
 								"dataType": "json"
 							})
-							.done(function(result) { cs.done(ReqReceiveEdit, result); })
-							.fail(function() { cs.fail(ReqReceiveEdit); })
-							.always(function() { cs.complete(ReqReceiveEdit); })
+							.done(function(result) { css.done(ReqReceiveEdit, result); })
+							.fail(function() { css.fail(ReqReceiveEdit); })
+							.always(function() { css.complete(ReqReceiveEdit); })
 					}
 					break;
 			}
@@ -345,10 +256,8 @@ export class ClientSession
 
 	done(req: number, result?: any)
 		{
-			this.nStateStamp++;
-
 			// Successful response from server - we're connected
-			this.setConnected(true);
+			this.parent.setConnected(true);
 
 			// If this request is not pending, it got canceled - ignore
 			if (! this.baPending[req])
@@ -357,7 +266,7 @@ export class ClientSession
 			// Check for odd result code
 			if (result === undefined || result.result === undefined)
 			{
-				this.context.log(1, "Create session succeeded but no result status.");
+				this.parent.context.log(1, "Create session succeeded but no result status.");
 				return;
 			}
 			let nResult: number = result.result;
@@ -366,24 +275,25 @@ export class ClientSession
 			{
 				case ReqUser:
 					if (nResult != 0)
-						this.context.log(1, "user view succeeded but non-zero result status: " + String(nResult));
+						this.parent.context.log(1, "user view succeeded but non-zero result status: " + String(nResult));
 					else if (result.user)
 					{
-						this.user = result.user;
-						this.notifyStatusChange();
+						this.parent.user = result.user;
+						this.parent.notifyStatusChange();
+						this.parent.notifyJoin();
 					}
 					break;
 
 				case ReqCreate:
 					if (nResult != 0)
-						this.context.log(1, "Create session succeeded but non-zero result status: " + String(nResult));
+						this.parent.context.log(1, "Create session succeeded but non-zero result status: " + String(nResult));
 					else
 					{
 						this.setReachable(true);
 						this.setFull(false);
 						this.sessionView = result.view;
 						this.sessionID = this.sessionView.sessionID;
-						this.pendingType = '';
+						this.parent.sessions[this.sessionID] = this;
 
 						// And immediately join
 						this.tick();
@@ -394,23 +304,17 @@ export class ClientSession
 					if (nResult == 2)
 					{
 						this.setFull(true);
-						this.context.log(1, "Join session succeeded but non-zero result status: " + String(nResult));
+						this.parent.context.log(1, "Join session succeeded but non-zero result status: " + String(nResult));
 					}
 					else
 					{
 						this.setFull(false);
-						this.clientID = result.clientID;
+						this.parent.clientID = result.clientID;
 						this.sessionView = result.view;
-						this.clientEngine = new OT.OTClientEngine(this.context, this.sessionID, this.clientID);
-						if (result.userName)
-						{
-							// TODO: Delete: Should no longer be necessary with real user info
-							if (this.user.name === undefined)
-								this.user.name = result.userName;
-						}
+						this.clientEngine = new OT.OTClientEngine(this.parent.context, this.sessionID, this.parent.clientID);
 
 						// OK, now let any registered observers know about the new session
-						this.notifyJoin();
+						this.parent.notifyJoin();
 
 						// And immediately send pending edits
 						this.tick();
@@ -459,15 +363,15 @@ export class ClientSession
 								}
 
 								// OK, now let any registered observers know about the new updates
-								this.notifyChange();
+								this.parent.notifyData();
 
 								// Received edits - speed up pace of requests
-								this.speed.speedUp();
+								this.parent.speed.speedUp();
 							}
 							else
 							{
 								// Slow down requests since I got no edits from service
-								this.speed.slowDown();
+								this.parent.speed.slowDown();
 							}
 						}
 					}
@@ -477,8 +381,6 @@ export class ClientSession
 
 	cancel(req?: number): void
 		{
-			this.nStateStamp++;
-
 			if (req === undefined)
 				for (let i: number = 0; i < NRequestTypes; i++) this.baPending[i] = false;
 			else
@@ -487,18 +389,214 @@ export class ClientSession
 
 	fail(req: number): void
 		{
-			this.nStateStamp++;
-
 			this.baPending[req] = false;
-			this.setConnected(false);
+			this.parent.setConnected(false);
 			this.setReachable(false);
 			this.setFull(false);
 		}
 
 	complete(req: number): void
 		{
-			this.nStateStamp++;
-
 			this.baPending[req] = false;
+		}
+
+	tick(): void
+		{
+			// If we don't have a user, fetch it
+			if (this.parent.user.name === undefined && !this.baPending[ReqUser])
+				this.start(ReqUser);
+
+			// If was full, keep trying to join, but not too aggressively
+			if (this.bFull)
+			{
+				this.parent.speed.slowDown();
+				this.start(ReqJoin);
+			}
+
+			// Otherwise if we are connected to a session, send along any edits
+			else if (this.clientEngine)
+			{
+				// If type not set, set it now
+				if (this.pendingType != '')
+				{
+					this.setType(this.pendingType);
+					this.pendingType = '';
+				}
+				this.start(ReqEdit);
+			}
+
+			// Otherwise if we have a session, join it
+			else if (this.sessionID != '' && !this.baPending[ReqJoin])
+				this.start(ReqJoin);
+
+			// If we have no session, and we want one of a specific type, create one
+			else if (this.sessionID == '' && this.pendingType != '' && !this.baPending[ReqCreate])
+				this.start(ReqCreate);
+		}
+
+}
+
+export class ClientSession
+{
+	context: OT.IExecutionContext;
+	session: ClientSessionState;
+	sessions: any;
+	clientID: string;
+	bConnected: boolean;
+
+	// User properties
+	user: any;
+
+	// Manage speed of server interaction
+	speed: SpeedManager;
+
+	// Registered observers
+	onDataList: any;
+	onJoinList: any;
+	onStatusList: any;
+
+	constructor(ctx: OT.IExecutionContext)
+		{
+			this.context = ctx;
+			this.session = new ClientSessionState(this);
+			this.sessions = {};
+			this.clientID = '';
+			this.bConnected = true;	// Fact that page was loaded means we were initially connected
+
+			this.user = {};
+
+			this.speed = new SpeedManager();
+
+			this.onDataList = {};
+			this.onJoinList = {};
+			this.onStatusList = [];
+		}
+
+	get bInSession(): boolean
+		{
+			return this.session.bInSession;
+		}
+
+	get bPendingConnection(): boolean
+		{
+			return this.session.bPendingConnection;
+		}
+
+	onData(resourceName: string, cb: any): void
+		{
+			let aCB: any = this.onDataList[resourceName];
+			if (aCB === undefined)
+			{
+				aCB = [];
+				this.onDataList[resourceName] = aCB;
+			}
+			aCB.push(cb);
+		}
+
+	onJoin(resourceName: string, cb: any): void
+		{
+			let aCB: any = this.onJoinList[resourceName];
+			if (aCB === undefined)
+			{
+				aCB = [];
+				this.onJoinList[resourceName] = aCB;
+			}
+			aCB.push(cb);
+		}
+
+	onStatusChange(cb: any): void
+		{
+			this.onStatusList.push(cb);
+		}
+
+	notifyStatusChange(): void
+		{
+			for (let i: number = 0; i < this.onStatusList.length; i++)
+				(this.onStatusList[i])(this);
+		}
+
+	notifyJoin(): void
+		{
+			// OK, let any registered observers know about the session change
+			for (var p in this.onJoinList)
+				if (this.onJoinList.hasOwnProperty(p))
+				{
+					let aCB: any = this.onJoinList[p];
+					for (let i: number = 0; i < aCB.length; i++) (aCB[i])(this);
+				}
+		}
+
+	notifyData(): void
+		{
+			// OK, now let any registered observers know about the new updates
+			if (this.session.clientEngine)
+			{
+				let objVal: any = this.session.clientEngine.toValue();
+				for (var p in objVal)
+				{
+					if (objVal.hasOwnProperty(p) && this.onDataList[p] != undefined)
+					{
+						let aCB: any = this.onDataList[p];
+						for (let i: number = 0; i < aCB.length; i++) (aCB[i])(this, objVal[p]);
+					}
+
+					// Cache meta information in the session
+					if (p == MetaResource)
+						this.session.meta = objVal[p];
+				}
+			}
+			else
+			{
+				for (var p in this.onDataList) if (this.onDataList.hasOwnProperty(p))
+				{
+					let aCB: any = this.onDataList[p];
+					for (let i: number = 0; i < aCB.length; i++) (aCB[i])(this, undefined);
+				}
+			}
+		}
+	
+	setConnected(b: boolean): void
+		{
+			if (b != this.bConnected)
+			{
+				this.bConnected = b;
+				this.notifyStatusChange();
+			}
+		}
+
+	tick(): void
+		{
+			this.session.tick();
+		}
+
+	setSession(sessionID: string): void
+		{
+			if (sessionID == '')
+				this.session = new ClientSessionState(this);
+			else
+			{
+				this.session = this.sessions[sessionID];
+				if (this.session === undefined)
+				{
+					this.session = new ClientSessionState(this);
+					this.session.sessionID = sessionID;
+					this.sessions[sessionID] = this.session;
+				}
+			}
+			this.notifyJoin();
+			this.notifyData();
+			this.tick();
+		}
+
+	reset(pendingType: string): void
+		{
+			this.session.cancel();
+			this.session = new ClientSessionState(this);
+			this.session.pendingType = pendingType;
+			if (pendingType == '') this.user = {}; // forces refresh with fresh data
+			this.notifyJoin();
+			this.notifyData();
+			this.notifyStatusChange();
+			this.tick();
 		}
 }

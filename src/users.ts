@@ -2,10 +2,11 @@ import * as fs from 'fs';
 import * as OT from '@terrencecrowley/ot-js';
 import * as SM from './serversession';
 
-const StateVersion: number = 3.0;
+const StateVersion: number = 4.0;
 
 export class User
 {
+	ns: string;
 	id: string;
 	token: string;
 	name: string;
@@ -18,6 +19,7 @@ export class User
 				this.fromJSON(o);
 			else
 			{
+				this.ns = '';
 				this.id = '';
 				this.token = '';
 				this.name = '';
@@ -26,13 +28,19 @@ export class User
 			}
 		}
 
+	serializedID(): string
+		{
+			return this.ns + '/' + this.id;
+		}
+
 	toJSON(): any
 		{
-			return { id: this.id, token: this.token, name: this.name, email: this.email, sessions: this.sessions };
+			return { sid: this.serializedID(), token: this.token, name: this.name, email: this.email, sessions: this.sessions };
 		}
 
 	fromJSON(o: any): void
 		{
+			this.ns = o.ns;
 			this.id = o.id;
 			this.token = o.token;
 			this.name = o.name;
@@ -44,7 +52,7 @@ export class User
 
 	toView(sm: SM.SessionManager): any
 		{
-			let o: any = { id: this.id, name: this.name, sessions: [] };
+			let o: any = { ns: this.ns, id: this.id, name: this.name, sessions: [] };
 			let aS: any = o.sessions;
 			for (var p in this.sessions)
 				if (this.sessions.hasOwnProperty(p))
@@ -75,10 +83,23 @@ export class Users
 			UserManager = this;
 		}
 
-	findByID(id: string): User
+	findByID(ns: string, id: string): User
 		{
 			for (let i: number = 0; i < this.users.length; i++)
-				if (this.users[i].id == id)
+				if (this.users[i].ns == ns && this.users[i].id == id)
+					return this.users[i];
+			return null;
+		}
+
+	findBySerializedID(sid: string): User
+		{
+			let i: number = sid.indexOf('/');
+			if (i == -1)
+				return this.findByID('', sid);
+			let ns: string = sid.substr(0, i);
+			let id: string = sid.substr(i+1);
+			for (let i: number = 0; i < this.users.length; i++)
+				if (this.users[i].ns == ns && this.users[i].id == id)
 					return this.users[i];
 			return null;
 		}

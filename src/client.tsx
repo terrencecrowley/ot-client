@@ -4,10 +4,11 @@ import * as OTE from "@terrencecrowley/ot-editutil";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Board from "./board";
-import * as SC from "./scratchcontrol";
-import * as CC from "./chatcontrol";
-import * as BC from "./boardcontrol";
-import * as StatC from "./statuscontrol";
+import * as ScratchControl from "./scratchcontrol";
+import * as DoodleControl from "./doodlecontrol";
+import * as ChatControl from "./chatcontrol";
+import * as BoardControl from "./boardcontrol";
+import * as StatusControl from "./statuscontrol";
 import * as SessionC from "./sessioncontrol";
 import * as CS from "./clientsession";
 import * as ClientActions from "./clientactions";
@@ -80,11 +81,12 @@ class App
 	context: BrowserContext;
 	clientSession: CS.ClientSession;
 
-	statusControl: StatC.StatusControl;
+	statusControl: StatusControl.StatusControl;
 	sessionControl: SessionC.SessionControl;
-	scratchControl: SC.ScratchControl;
-	chatControl: CC.ChatControl;
-	boardControl: BC.BoardControl;
+	scratchControl: ScratchControl.ScratchControl;
+	doodleControl: DoodleControl.DoodleControl;
+	chatControl: ChatControl.ChatControl;
+	boardControl: BoardControl.BoardControl;
 
 	// For rendering
 	bRender: boolean;
@@ -104,19 +106,20 @@ class App
 			// Bind so I can use as generic callbacks
 			this.actions = new Actions(this);
 
-			this.statusControl = new StatC.StatusControl(this.context, this.clientSession, this.forceRender);
-			this.chatControl = new CC.ChatControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.statusControl = new StatusControl.StatusControl(this.context, this.clientSession, this.forceRender);
+			this.chatControl = new ChatControl.ChatControl(this.context, this.clientSession, this.forceRender, this.actions);
 
 			this.sessionControl = new SessionC.SessionControl(this.context, this.clientSession, this.forceRender, this.actions);
-			this.scratchControl = new SC.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
-			this.boardControl = new BC.BoardControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.scratchControl = new ScratchControl.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.doodleControl = new DoodleControl.DoodleControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.boardControl = new BoardControl.BoardControl(this.context, this.clientSession, this.forceRender, this.actions);
 		}
 
 	render(): void
 		{
 			if (this.bRender)
 			{
-				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} />,
+				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} doodleControl={this.doodleControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
 			}
@@ -134,12 +137,12 @@ class App
 	get urlForJoin(): string
 		{
 			let s: string = '';
-			if (this.clientSession.sessionID != '')
+			if (this.clientSession.session.sessionID != '')
 			{
 				s = document.location.protocol + '//' + document.location.hostname;
 				if (document.location.port)
 					s += ':' + document.location.port;
-				s += '/join/' + this.clientSession.sessionID;
+				s += '/join/' + this.clientSession.session.sessionID;
 			}
 			return s;
 		}
@@ -162,41 +165,29 @@ class App
 
 	mode(): string
 		{
-			if (this.clientSession.sessionView && this.clientSession.sessionView.sessionType)
-				return this.clientSession.sessionView.sessionType;
+			if (this.clientSession.session.getType())
+				return this.clientSession.session.getType();
 			return '';
 		}
 
 	actionHome(): void
 		{
 			this.clientSession.reset('');
-			this.chatControl.reset();
-			this.boardControl.reset();
-			this.scratchControl.reset();
 		}
 
 	actionNewChess(): void
 		{
 			this.clientSession.reset('chess');
-			this.chatControl.reset();
-			this.boardControl.reset();
-			this.scratchControl.reset();
 		}
 
 	actionNewScratch(): void
 		{
 			this.clientSession.reset('scratch');
-			this.chatControl.reset();
-			this.boardControl.reset();
-			this.scratchControl.reset();
 		}
 
 	actionNewDoodle(): void
 		{
 			this.clientSession.reset('doodle');
-			this.chatControl.reset();
-			this.boardControl.reset();
-			this.scratchControl.reset();
 		}
 
 	actionToggleChat(): void
@@ -206,11 +197,7 @@ class App
 
 	actionJoinSession(sid: string): void
 		{
-			this.clientSession.reset('');
-			this.chatControl.reset();
-			this.boardControl.reset();
-			this.scratchControl.reset();
-			this.clientSession.sessionID = sid;
+			this.clientSession.setSession(sid);
 		}
 
 	tick(): void

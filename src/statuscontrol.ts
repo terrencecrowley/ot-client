@@ -21,7 +21,7 @@ export class StatusControl
 			this.notifyUserChange = this.notifyUserChange.bind(this);
 			cs.onStatusChange(this.notifyJoin);
 			cs.onJoin('WellKnownName_root', this.notifyJoin);
-			cs.onChange('WellKnownName_users', this.notifyUserChange);
+			cs.onData('WellKnownName_users', this.notifyUserChange);
 		}
 
 	notifyJoin(cs: CS.ClientSession)
@@ -31,7 +31,7 @@ export class StatusControl
 				newStatus = "Server unreachable.";
 			else if (cs.bInSession)
 			{
-				if (cs.bReachable)
+				if (cs.session.bReachable)
 				{
 					let nAnon: number = 0;
 					let nOther: number = 0;
@@ -73,7 +73,7 @@ export class StatusControl
 				else
 					newStatus = "Session unavailable.";
 			}
-			else if (cs.bFull)
+			else if (cs.session.bFull)
 				newStatus = "Session full, please wait.";
 			else if (cs.bPendingConnection)
 				newStatus = "Connecting to session...";
@@ -90,7 +90,10 @@ export class StatusControl
 
 	notifyUserChange(cs: CS.ClientSession, userMap: any)
 		{
-			this.userMap = userMap;
+			if (userMap === undefined)
+				this.userMap = {};
+			else
+				this.userMap = userMap;
 			this.notifyJoin(cs);
 		}
 }

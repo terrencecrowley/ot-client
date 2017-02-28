@@ -44,11 +44,11 @@ export class ScratchControl
 		this.selectionEnd = 0;
 		this.elTextArea = null;
 		this.captureElementCB = this.captureElementCB.bind(this);
-		this.notifyChange = this.notifyChange.bind(this);
+		this.notifyData = this.notifyData.bind(this);
 		this.notifyLocalChange = this.notifyLocalChange.bind(this);
 		this.notifyJoin = this.notifyJoin.bind(this);
 		this.clientSession = cs;
-		cs.onChange('text', this.notifyChange);
+		cs.onData('text', this.notifyData);
 		cs.onJoin('text', this.notifyJoin);
 		this.editUtil = null;
 	}
@@ -60,23 +60,28 @@ export class ScratchControl
 			this.selectionEnd = 0;
 		}
 
-	notifyChange(cs: CS.ClientSession, a: any): void
+	notifyData(cs: CS.ClientSession, a: any): void
 		{
-			let s: string = a as string;
-			if (s)
+			if (a === undefined)
+				this.reset();
+			else
 			{
-				let cursor: any = this.editUtil.extractCursor(cs.clientEngine.stateLocal);
-				cursor = cursor ? cursor[cs.clientID] : undefined;
-				let ss: number = cursor && cursor.selectionStart ? cursor.selectionStart : undefined;
-				let se: number = cursor && cursor.selectionEnd ? cursor.selectionEnd : ss;
-				this.setTextValue(s, ss, se);
+				let s: string = a as string;
+				if (s)
+				{
+					let cursor: any = this.editUtil.extractCursor(cs.session.clientEngine.stateLocal);
+					cursor = cursor ? cursor[cs.clientID] : undefined;
+					let ss: number = cursor && cursor.selectionStart ? cursor.selectionStart : undefined;
+					let se: number = cursor && cursor.selectionEnd ? cursor.selectionEnd : ss;
+					this.setTextValue(s, ss, se);
+				}
 			}
 		}
 
 	notifyJoin(cs: CS.ClientSession): void
 		{
-			if (cs.clientEngine)
-				this.editUtil = new OTE.OTEditUtil(this.context, cs.sessionID, cs.clientID, 'text');
+			if (cs.session.clientEngine)
+				this.editUtil = new OTE.OTEditUtil(this.context, cs.session.sessionID, cs.clientID, 'text');
 			else
 				this.editUtil = null;
 		}
@@ -103,16 +108,18 @@ export class ScratchControl
 
 	notifyLocalChange(sNewVal: string, s: number, e: number): void
 	{
-		if (this.clientSession.clientEngine)
+		let css: CS.ClientSessionState = this.clientSession.session;
+
+		if (css.clientEngine)
 		{
-			let objOld: any = this.clientSession.clientEngine.toValue();
+			let objOld: any = css.clientEngine.toValue();
 			let sOldVal = (objOld && objOld['text']) ? objOld['text'] : '';
 			if (sOldVal != sNewVal || s != this.selectionStart || e != this.selectionEnd)
 			{
 				let edit: OT.OTCompositeResource = this.editUtil.computeEdit(sOldVal, sNewVal);
 				this.editUtil.injectCursor(edit, s, e);
 				if (edit.length > 0)
-					this.clientSession.clientEngine.addLocal(edit);
+					css.addLocal(edit);
 			}
 		}
 		this.setTextValue(sNewVal, s, e);
