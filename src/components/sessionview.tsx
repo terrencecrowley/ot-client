@@ -67,7 +67,7 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 							</button>
 							&nbsp;
 							&nbsp;
-							{s.sessionType}:&nbsp;{String(s.clientCount) + " users active"}
+							{s.sessionName}({s.sessionType}):&nbsp;{String(s.clientCount) + " users active"}
 							<br/>
 							</div>
 						);

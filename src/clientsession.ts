@@ -532,6 +532,11 @@ export class ClientSession
 			if (this.session.clientEngine)
 			{
 				let objVal: any = this.session.clientEngine.toValue();
+
+				// Cache meta information in the session. Set before other notifications.
+				if (objVal[MetaResource] !== undefined)
+					this.session.meta = objVal[MetaResource];
+
 				for (var p in objVal)
 				{
 					if (objVal.hasOwnProperty(p) && this.onDataList[p] != undefined)
@@ -539,10 +544,6 @@ export class ClientSession
 						let aCB: any = this.onDataList[p];
 						for (let i: number = 0; i < aCB.length; i++) (aCB[i])(this, objVal[p]);
 					}
-
-					// Cache meta information in the session
-					if (p == MetaResource)
-						this.session.meta = objVal[p];
 				}
 			}
 			else

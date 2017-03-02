@@ -126,6 +126,15 @@ export class AgreeControl
 			this.notifyLocal_finish();
 		}
 
+	notifyLocal_deleteProp(mapName: string, prop: string)
+		{
+			this.notifyLocal_start();
+			let editMap: OT.OTMapResource = new OT.OTMapResource(mapName);
+			editMap.edits.push([ OT.OpMapDel, prop, '' ]);
+			this.editRoot.edits.push(editMap);
+			this.notifyLocal_finish();
+		}
+
 	notifyLocal_setName(s: string): void
 		{
 			if (s != this.agree.meta.name)
@@ -138,10 +147,15 @@ export class AgreeControl
 				this.notifyLocal_setProp(CS.MetaResource, 'dtype', s);
 		}
 
-	notifyLocal_setUser(sid: string, name: string): void
+	notifyLocal_setUser(sid: string, name?: string): void
 		{
-			if (this.agree.users[sid] === undefined || this.agree.users[sid] != name)
-				this.notifyLocal_setProp('users', sid, name);
+			if (name)
+			{
+				if (this.agree.users[sid] === undefined || this.agree.users[sid] != name)
+					this.notifyLocal_setProp('users', sid, name);
+			}
+			else
+				this.notifyLocal_deleteProp('users', sid);
 		}
 
 	assureLocalUser(): void
@@ -169,9 +183,12 @@ export class AgreeControl
 					{
 						if (i)
 							editChoices.edits.push([ OT.OpRetain, i, [] ]);
-						editChoices.edits.push([ OT.OpSet, 1, [ choice ] ]);
+						if (choice[2] != '')
+							editChoices.edits.push([ OT.OpSet, 1, [ choice ] ]);
+						else
+							editChoices.edits.push([ OT.OpDelete, 1, [] ]);
 						if (i+1 < this.agree.choices.length)
-							editChoices.edits.push([ OT.OpRetain, i, [] ]);
+							editChoices.edits.push([ OT.OpRetain, this.agree.choices.length-(i+1), [] ]);
 						break;
 					}
 				}
@@ -179,7 +196,8 @@ export class AgreeControl
 				{
 					if (i > 0)
 						editChoices.edits.push([ OT.OpRetain, i, [] ]);
-					editChoices.edits.push([ OT.OpInsert, 1, [ choice ] ]);
+					if (choice[2] != '')
+						editChoices.edits.push([ OT.OpInsert, 1, [ choice ] ]);
 				}
 				this.editRoot.edits.push(editChoices);
 				this.notifyLocal_finish();

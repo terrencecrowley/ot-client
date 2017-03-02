@@ -3,6 +3,8 @@ import { NavBar } from "./navbar";
 import { BoardView } from "./boardview";
 import { StatusView } from "./statusview";
 import { ChatView } from "./chatview";
+import { NameView } from "./nameview";
+import { QueryView } from "./queryview";
 import { ScratchView } from "./scratchview";
 import { SessionView } from "./sessionview";
 import { AgreeView } from "./agreeview";
@@ -11,6 +13,8 @@ import { IClientActions } from "../clientactions";
 import * as SessionControl from "../sessioncontrol";
 import * as BoardControl from "../boardcontrol";
 import * as ChatControl from "../chatcontrol";
+import * as NameControl from "../namecontrol";
+import * as QueryControl from "../querycontrol";
 import * as ScratchControl from "../scratchcontrol";
 import * as AgreeControl from "../agreecontrol";
 
@@ -22,6 +26,8 @@ export interface AppProps {
 		actions: IClientActions,
 		sessionControl: SessionControl.SessionControl,
 		chatControl: ChatControl.ChatControl,
+		nameControl: NameControl.NameControl,
+		queryControl: QueryControl.QueryControl,
 		boardControl: BoardControl.BoardControl,
 		scratchControl: ScratchControl.ScratchControl,
 		agreeControl: AgreeControl.AgreeControl
@@ -34,7 +40,7 @@ export class ReactApp extends React.Component<AppProps, {}> {
 			let cmpNav: any = <NavBar url={this.props.url} name={this.props.name} chatLabel={this.props.chatControl.navText()} actions={this.props.actions} statusLabel={statusLabel}/>;
 			let cmpChat: any = this.props.chatControl.bChatOn ? <ChatView cc={this.props.chatControl} /> : null;
 			let cmpStatus: any = <StatusView status={this.props.status} />;
-
+			let cmpName: any = <NameView nc={this.props.nameControl} />;
 			let cmpMain: any = null;
 
 			switch (this.props.mode)
@@ -48,18 +54,21 @@ export class ReactApp extends React.Component<AppProps, {}> {
 					break;
 
 				case 'agree':
-					cmpMain = <AgreeView dc={this.props.agreeControl} />;
+					cmpMain = <AgreeView agreeControl={this.props.agreeControl} />;
 					break;
 
 				default:
 					cmpMain = <SessionView sc={this.props.sessionControl} />;
+					cmpName = null;
 					break;
 			}
 
 			return (
 				<div className="wrapper">
+					<QueryView queryControl={this.props.queryControl} />
 					<div className="header">
 					{cmpNav}
+					{cmpName}
 					</div>
 					<div className="content inarow">
 					{cmpMain}

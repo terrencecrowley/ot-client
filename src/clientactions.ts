@@ -4,6 +4,7 @@ export const NewChess: number = 2;
 export const NewAgree: number = 3;
 export const ToggleChat: number = 4;
 export const JoinSession: number = 5;
+export const Query: number = 6;	// arg is { query: "", yes: "", no: "", callback: func }
 
 export interface IClientActions
 {

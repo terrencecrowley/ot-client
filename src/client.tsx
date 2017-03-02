@@ -7,6 +7,8 @@ import * as Board from "./board";
 import * as ScratchControl from "./scratchcontrol";
 import * as AgreeControl from "./agreecontrol";
 import * as ChatControl from "./chatcontrol";
+import * as NameControl from "./namecontrol";
+import * as QueryControl from "./querycontrol";
 import * as BoardControl from "./boardcontrol";
 import * as StatusControl from "./statuscontrol";
 import * as SessionC from "./sessioncontrol";
@@ -72,6 +74,10 @@ class Actions implements ClientActions.IClientActions
 				case ClientActions.JoinSession:
 					this.app.actionJoinSession(arg as string);
 					break;
+
+				case ClientActions.Query:
+					this.app.actionQuery(arg);
+					break;
 			}
 		}
 }
@@ -86,7 +92,9 @@ class App
 	scratchControl: ScratchControl.ScratchControl;
 	agreeControl: AgreeControl.AgreeControl;
 	chatControl: ChatControl.ChatControl;
+	nameControl: NameControl.NameControl;
 	boardControl: BoardControl.BoardControl;
+	queryControl: QueryControl.QueryControl;
 
 	// For rendering
 	bRender: boolean;
@@ -108,6 +116,8 @@ class App
 
 			this.statusControl = new StatusControl.StatusControl(this.context, this.clientSession, this.forceRender);
 			this.chatControl = new ChatControl.ChatControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.nameControl = new NameControl.NameControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.queryControl = new QueryControl.QueryControl(this.context, this.clientSession, this.forceRender, this.actions);
 
 			this.sessionControl = new SessionC.SessionControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.scratchControl = new ScratchControl.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
@@ -119,7 +129,7 @@ class App
 		{
 			if (this.bRender)
 			{
-				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
+				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
 			}
@@ -198,6 +208,11 @@ class App
 	actionJoinSession(sid: string): void
 		{
 			this.clientSession.setSession(sid);
+		}
+
+	actionQuery(props: any): void
+		{
+			this.queryControl.query(props);
 		}
 
 	tick(): void

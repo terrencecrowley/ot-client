@@ -1,10 +1,11 @@
 import * as React from "react";
 import * as Agree from "../agree";
 import * as AgreeControl from "../agreecontrol";
+import * as ClientActions from "../clientactions";
 import * as Util from "../util";
 
 export interface AgreeProps {
-	dc: AgreeControl.AgreeControl
+	agreeControl: AgreeControl.AgreeControl
 }
 
 export interface AgreeState {
@@ -55,13 +56,13 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			if (this.state.bEditingChoice)
 			{
 				if (val != '')
-					this.props.dc.notifyLocal_setChoice([ Util.createGuid(), 'enum', val, '' ]);
+					this.props.agreeControl.notifyLocal_setChoice([ Util.createGuid(), 'enum', val, '' ]);
 				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
 			}
 			else if (this.state.bEditingName)
 			{
 				if (val != '')
-					this.props.dc.notifyLocal_setUser('anom/' + Util.createGuid(), val);
+					this.props.agreeControl.notifyLocal_setUser('anom/' + Util.createGuid(), val);
 				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
 			}
 		}
@@ -79,6 +80,14 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			this.handleTextReturn();
 			if (e.currentTarget.id == '')
 				this.setState( { bEditingChoice: true, sChoice: '', bEditingName: false, sName: '' } );
+			else
+			{
+				let agreeControl: AgreeControl.AgreeControl = this.props.agreeControl;
+				let choice: Agree.SyncChoice = [ e.currentTarget.id, '', '', '' ];
+				let props: any = { query: 'Delete choice?',
+								   callback: (b: boolean) => { if (b) this.props.agreeControl.notifyLocal_setChoice(choice); } };
+				agreeControl.actions.fire(ClientActions.Query, props);
+			}
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -96,10 +105,10 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 
 	handleSelectClick(e: any): boolean
 		{
-			let dc: AgreeControl.AgreeControl = this.props.dc;
-			let agree: Agree.Agree = dc.agree;
+			let agreeControl: AgreeControl.AgreeControl = this.props.agreeControl;
+			let agree: Agree.Agree = agreeControl.agree;
 			this.handleTextReturn();
-			dc.notifyLocal_setSelect(e.currentTarget.id, agree.nextSelection(e.currentTarget.id));
+			agreeControl.notifyLocal_setSelect(e.currentTarget.id, agree.nextSelection(e.currentTarget.id));
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -115,22 +124,22 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 
 	render()
 		{
-			let agree: Agree.Agree = this.props.dc.agree;
+			let agree: Agree.Agree = this.props.agreeControl.agree;
 			let state: AgreeState = this.state;
 			let rows: any[] = [];
 			let row: any[] = [];
 
 			// Header Row
-			row.push(<div className={'agreeRowHeader agreeColHeader agreeEmpty'}></div>);
+			row.push(<div className={'agreeCell agreeColHeader agreeCorner agreeRowHeader'}></div>);
 			for (let i: number = 0; i < agree.choices.length; i++)
 			{
 				let c: Agree.SyncChoice = agree.choices[i];
-				row.push( <div className={'agreeColHeader'} id={c[0]} onClick={this.handleChoiceClick}>{c[2]}</div>);
+				row.push( <div className={'agreeCell agreeColHeader'} id={c[0]} onClick={this.handleChoiceClick}>{c[2]}</div>);
 			}
 			if (state.bEditingChoice)
 				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingchoice" type="text" value={this.state.sChoice} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
 			else
-				row.push( <div className={'agreeColHeader'} id='' onClick={this.handleChoiceClick}>+&nbsp;Choice</div>);
+				row.push( <div className={'agreeCell agreeColHeader'} id='' onClick={this.handleChoiceClick}>+&nbsp;Choice</div>);
 			rows.push(<div className='tablerow'>{row}</div>);
 
 			// Row for each user
@@ -139,15 +148,16 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			{
 				let u: any = users[j];
 				row = [];
-				row.push(<div className={'agreeRowHeader'} id={u.id} onClick={this.handleUserClick}>{u.name}</div>);
+				row.push(<div className={'agreeCell agreeRowHeader'} id={u.id} onClick={this.handleUserClick}>{u.name}</div>);
 				for (let k: number = 0; k < agree.choices.length; k++)
 				{
 					let c: Agree.SyncChoice = agree.choices[k];
 					let id: string = u.id + '/' + c[0];
 					let val: number = agree.selects[id] === undefined ? -1 : agree.selects[id];
-					let classString: string = 'agreeMain';
+					let classString: string = 'agreeCell agreeMain';
 					switch (val)
 					{
+						case -1: classString += ' ShowOpen'; break;
 						case 0: classString += ' ShowNo'; break;
 						case 1: classString += ' ShowYes'; break;
 						case 2: classString += ' ShowMaybe'; break;
@@ -155,7 +165,7 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 					}
 					row.push(<div className={classString} id={id} onClick={this.handleSelectClick}>&nbsp;</div>);
 				}
-				row.push(<div className={'agreeEmpty'} id=''></div>);
+				row.push(<div className={'agreeCell agreeEmpty'} id=''></div>);
 				rows.push(<div className='tablerow'>{row}</div>);
 			}
 
@@ -164,8 +174,8 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			if (state.bEditingName)
 				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingname" type="text" value={this.state.sName} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
 			else
-				row.push(<div className={'agreeRowHeader'} id='' onClick={this.handleUserClick}>+&nbsp;User</div>);
-			for (let k: number = 0; k <= agree.choices.length; k++) row.push(<div className={'agreeEmpty'}></div>);
+				row.push(<div className={'agreeCell agreeRowHeader'} id='' onClick={this.handleUserClick}>+&nbsp;User</div>);
+			for (let k: number = 0; k <= agree.choices.length; k++) row.push(<div className={'agreeCell agreeEmpty'}></div>);
 			rows.push(<div className='tablerow'>{row}</div>);
 
 			// Full grid
