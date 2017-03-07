@@ -26,6 +26,7 @@ cp -R ${SRC}/node_modules/express ${DST}/node_modules
 cp -R ${SRC}/node_modules/express-session ${DST}/node_modules
 cp -R ${SRC}/node_modules/passport ${DST}/node_modules
 cp -R ${SRC}/node_modules/passport-facebook ${DST}/node_modules
+cp -R ${SRC}/node_modules/passport-local ${DST}/node_modules
 cp -R ${SRC}/node_modules/body-parser ${DST}/node_modules
 cp -R ${SRC}/node_modules/cookie-parser ${DST}/node_modules
 cp -R ${SRC}/node_modules/connect-flash ${DST}/node_modules

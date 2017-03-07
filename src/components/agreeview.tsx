@@ -44,6 +44,11 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			}
 		}
 
+	cancelText(): void
+		{
+			this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
+		}
+
 	handleTextReturn(event?: any): void
 		{
 			if (event !== undefined && event.charCode != 13)
@@ -57,19 +62,25 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			{
 				if (val != '')
 					this.props.agreeControl.notifyLocal_setChoice([ Util.createGuid(), 'enum', val, '' ]);
-				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
+				this.cancelText();
 			}
 			else if (this.state.bEditingName)
 			{
 				if (val != '')
 					this.props.agreeControl.notifyLocal_setUser('anom/' + Util.createGuid(), val);
-				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: false, sName: '' } );
+				this.cancelText();
 			}
 		}
 
 	handleClick(e: any): boolean
 		{
-			this.handleTextReturn();
+			if (this.state.bEditingName || this.state.bEditingChoice)
+			{
+				if (e.currentTarget.id == "ok")
+					this.handleTextReturn();
+				else if (e.currentTarget.id == "cancel")
+					this.cancelText();
+			}
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -98,6 +109,14 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			this.handleTextReturn();
 			if (e.currentTarget.id == '')
 				this.setState( { bEditingChoice: false, sChoice: '', bEditingName: true, sName: '' } );
+			else
+			{
+				let agreeControl: AgreeControl.AgreeControl = this.props.agreeControl;
+				let sid: string = e.currentTarget.id;
+				let props: any = { query: 'Delete user?',
+								   callback: (b: boolean) => { if (b) this.props.agreeControl.notifyLocal_setUser(sid); } };
+				agreeControl.actions.fire(ClientActions.Query, props);
+			}
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -130,14 +149,20 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			let row: any[] = [];
 
 			// Header Row
-			row.push(<div className={'agreeCell agreeColHeader agreeCorner agreeRowHeader'}></div>);
+			row.push(<div className={'agreeCell agreeCorner agreeRowHeader'}></div>);
 			for (let i: number = 0; i < agree.choices.length; i++)
 			{
 				let c: Agree.SyncChoice = agree.choices[i];
 				row.push( <div className={'agreeCell agreeColHeader'} id={c[0]} onClick={this.handleChoiceClick}>{c[2]}</div>);
 			}
 			if (state.bEditingChoice)
-				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingchoice" type="text" value={this.state.sChoice} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
+				row.push(
+					<div>
+					<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingchoice" type="text" value={this.state.sChoice} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />
+					<button id='ok' onClick={this.handleClick} ><img src='/ShowYes.png' /></button>&nbsp;
+					<button id='cancel' onClick={this.handleClick} ><img src='/ShowNo.png' /></button>
+					</div>
+					);
 			else
 				row.push( <div className={'agreeCell agreeColHeader'} id='' onClick={this.handleChoiceClick}>+&nbsp;Choice</div>);
 			rows.push(<div className='tablerow'>{row}</div>);
@@ -172,13 +197,23 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			// Row for new user
 			row = [];
 			if (state.bEditingName)
-				row.push(<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingname" type="text" value={this.state.sName} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />);
+				row.push(
+					<div>
+					<input ref={(i)=>{this.textInput=i;}} className="chatinput" id="editingname" type="text" value={this.state.sName} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />
+					<button id='ok' onClick={this.handleClick} ><img src='/ShowYes.png' /></button>&nbsp;
+					<button id='cancel' onClick={this.handleClick} ><img src='/ShowNo.png' /></button>
+					</div>
+					);
 			else
 				row.push(<div className={'agreeCell agreeRowHeader'} id='' onClick={this.handleUserClick}>+&nbsp;User</div>);
 			for (let k: number = 0; k <= agree.choices.length; k++) row.push(<div className={'agreeCell agreeEmpty'}></div>);
 			rows.push(<div className='tablerow'>{row}</div>);
 
 			// Full grid
-			return (<div className='table'>{rows}</div>);
+			return (
+				<div className='agreecontainer'>
+				<div className='table'>{rows}</div>
+				</div>
+				);
 		}
 }

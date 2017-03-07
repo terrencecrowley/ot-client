@@ -18,7 +18,7 @@ var serverConfig = {
 	target: 'node',
 	output: {
 		path: './dist',
-		filename: 'chessserver.bundle.js'
+		filename: 'shareserver.bundle.js'
 	},
 	externals: nodeModules,
 
@@ -46,7 +46,7 @@ var clientConfig = {
 	target: 'web',
 	output: {
 		path: './clientdist',
-		filename: 'chessclient.bundle.js'
+		filename: 'shareclient.bundle.js'
 	},
 
 	externals: {

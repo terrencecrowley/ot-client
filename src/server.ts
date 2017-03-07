@@ -4,6 +4,7 @@ import * as cookieParser from "cookie-parser";
 import * as session from "express-session";
 import * as passport from "passport";
 import * as passport_facebook from "passport-facebook";
+import * as passport_local from "passport-local";
 import flash = require("connect-flash");
 import * as UM from "./users";
 
@@ -50,13 +51,17 @@ app.use('/scripts', express.static('clientdist'));
 
 // Authentication and user management
 let FacebookStrategy = passport_facebook.Strategy;
+let LocalStrategy = passport_local.Strategy;
+
 passport.serializeUser(function(user: UM.User, done: any) {
 	done(null, user.serializedID());
 	});
+
 passport.deserializeUser(function(sid: any, done: any) {
 	let user: UM.User = sessionManager.users.findBySerializedID(sid);
 	done(null, user);
 	});
+
 passport.use(new FacebookStrategy(
 		{
 			clientID: clientID,
@@ -89,12 +94,24 @@ passport.use(new FacebookStrategy(
 		})
 	);
 
+passport.use(new LocalStrategy(
+	function(username: any, password: any, done: any) {
+			let user: UM.User = sessionManager.users.findByID('local', username);
+
+			if (user == null)
+				return done(null, false, { message: 'No such user.' });
+			else if (! user.validPassword(password))
+				return done(null, false, { message: 'Incorrect password.' });
+
+			return done(null, user);
+		}));
+
 // Middleware to protect API calls with authentication status
 function isLoggedIn(req: any, res: any, next: any) {
 	if (req.user)
 		return next();
 	req.session.redirect_to = req.originalUrl;
-	res.redirect('/auth/facebook');
+	res.redirect('/login');
 }
 
 function isLoggedInAPI(req: any, res: any, next: any) {
@@ -106,18 +123,27 @@ function isLoggedInAPI(req: any, res: any, next: any) {
 // Authenticated pages
 app.use('/pages', isLoggedIn, express.static('pages'));
 
+// Unauthenticated
+app.use('/unauth', express.static('pages'));
+
 // Authentication routes
 app.get('/', function(req: any, res: any) {
 	if (req.user)
 		res.redirect('/pages/index.html');
 	else
-		res.redirect('/auth/facebook');
+		res.redirect('/login');
 });
 
 app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }));
 
 app.get('/auth/facebook/callback',
 	passport.authenticate('facebook', { successRedirect: '/login', failureRedirect: '/' }));
+
+app.get('/auth/local', passport.authenticate('local', { successRedirect: '/login', failureRedirect: '/', failureFlash: true } ));
+
+app.get('/signup', function(req: any, res: any) {
+	res.redirect('/pages/signup.html');
+	});
 
 app.get('/login', function(req: any, res: any) {
 		if (req.user)
@@ -132,7 +158,26 @@ app.get('/login', function(req: any, res: any) {
 				res.redirect('/pages/index.html');
 		}
 		else
-			res.redirect('/');
+			res.redirect('/unauth/login.html');
+	});
+
+app.post('/login', function(req: any, res: any) {
+	if (req.body.signup)
+	{
+		if (sessionManager.users.findByID('local', req.body.username))
+		{
+			res.redirect('/unauth/login.html');
+			return;
+		}
+		else
+		{
+			let o: any = { ns: 'local', id: req.body.username, password: req.body.password, name: req.body.username };
+			let user: any = sessionManager.users.createUser(o);
+		}
+	}
+	passport.authenticate('local', { successRedirect: '/',
+									 failureRedirect: '/login',
+									 failureFlash: true })(req, res, undefined);
 	});
 
 app.get('/logout', function(req: any, res: any) {

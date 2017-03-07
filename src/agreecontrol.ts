@@ -155,7 +155,10 @@ export class AgreeControl
 					this.notifyLocal_setProp('users', sid, name);
 			}
 			else
+			{
 				this.notifyLocal_deleteProp('users', sid);
+				this.assureLocalUser();
+			}
 		}
 
 	assureLocalUser(): void

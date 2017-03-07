@@ -108,29 +108,33 @@ button img {
 
 .agreeRowHeader {
 	background-color: #1118B9;
-	width: 6em;
+	width: 2%;
 	min-width: 6em;
 	white-space: nowrap;
+	cursor: pointer;
 }
 
 .agreeColHeader {
 	background-color: #1118B9;
-	width: 100%;
+	width: 1%;
 	min-width: 6em;
+	cursor: pointer;
 }
 
 .agreeMain {
-	background-color: #BCBFEF;
-	width: 100%;
+	background-color: #E7E8F2;
+	width: 1%;
+	cursor: pointer;
 }
 
 .agreeEmpty {
-	background-color: #E7E8F2;
-	width: 100%;
+	background-color: #BCBFEF;
+	width: 1%;
 }
 
 .agreeCorner {
-	background-color: #E7E8F2;
+	background-color: #BCBFEF;
+	cursor: default;
 }
 
 .pieceTable {
@@ -235,6 +239,11 @@ input, textarea {
 	flex: 1 1 25%;
 	align-items: stretch;
 	background: #eeeeee;
+}
+
+.agreecontainer {
+	display: flex;
+	flex: 1 1 75%;
 }
 
 .chatbox {

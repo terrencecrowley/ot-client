@@ -33,6 +33,12 @@ export class User
 			return this.ns + '/' + this.id;
 		}
 
+	validPassword(pw: string): boolean
+		{
+			// TODO: Implement password storage
+			return true;
+		}
+
 	toJSON(): any
 		{
 			return { sid: this.serializedID(), token: this.token, name: this.name, email: this.email, sessions: this.sessions };

@@ -1,1 +1,1 @@
-var run = require('./dist/chessserver.bundle.js');
+var run = require('./dist/shareserver.bundle.js');

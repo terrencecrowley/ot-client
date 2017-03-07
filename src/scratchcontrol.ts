@@ -86,6 +86,21 @@ export class ScratchControl
 				this.editUtil = null;
 		}
 
+	pushIntoTextArea(): void
+		{
+			if (this.elTextArea)
+			{
+				if (this.elTextArea.value !== this.textValue
+					|| this.elTextArea.selectionStart != this.selectionStart
+					|| this.elTextArea.selectionEnd != this.selectionEnd)
+				{
+					this.elTextArea.value = this.textValue;
+					selectRange(this.elTextArea, this.selectionStart, this.selectionEnd);
+					this.reRender();
+				}
+            }
+		}
+
 	setTextValue(s: string, selectionStart?: number, selectionEnd?: number): void
         {
             this.textValue = s;
@@ -93,17 +108,7 @@ export class ScratchControl
                 this.selectionStart = selectionStart;
             if (selectionEnd !== undefined)
                 this.selectionEnd = selectionEnd;
-			if (this.elTextArea)
-			{
-				if (this.elTextArea.value !== this.textValue
-					|| this.elTextArea.selectionStart != this.selectionStart
-					|| this.elTextArea.selectionEnd != this.selectionEnd)
-				{
-					this.elTextArea.value = s;
-					selectRange(this.elTextArea, this.selectionStart, this.selectionEnd);
-					this.reRender();
-				}
-            }
+			this.pushIntoTextArea();
         }
 
 	notifyLocalChange(sNewVal: string, s: number, e: number): void
@@ -128,5 +133,6 @@ export class ScratchControl
 	captureElementCB(el: any): void
 		{
 			this.elTextArea = el;
+			this.pushIntoTextArea();
 		}
 }

@@ -79,7 +79,7 @@ export class NavBar extends React.Component<NavProps, NavState> {
 			{
 				cmpMenus = (
 					<div>
-					<a href="/">Home</a>&nbsp; | &nbsp;{this.props.name}&nbsp;
+					<a href="/">Home</a>&nbsp; | &nbsp;{this.props.name}&nbsp; | &nbsp;<a href='/logout'>Logout</a>
 					</div>
 					);
 			}
