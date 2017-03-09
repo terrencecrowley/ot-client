@@ -1,6 +1,6 @@
 import * as React from "react";
 import { NavBar } from "./navbar";
-import { BoardView } from "./boardview";
+import { ChessView } from "./chessview";
 import { StatusView } from "./statusview";
 import { ChatView } from "./chatview";
 import { NameView } from "./nameview";
@@ -11,7 +11,7 @@ import { AgreeView } from "./agreeview";
 import { IClientActions } from "../clientactions";
 
 import * as SessionControl from "../sessioncontrol";
-import * as BoardControl from "../boardcontrol";
+import * as ChessControl from "../chesscontrol";
 import * as ChatControl from "../chatcontrol";
 import * as NameControl from "../namecontrol";
 import * as QueryControl from "../querycontrol";
@@ -28,7 +28,7 @@ export interface AppProps {
 		chatControl: ChatControl.ChatControl,
 		nameControl: NameControl.NameControl,
 		queryControl: QueryControl.QueryControl,
-		boardControl: BoardControl.BoardControl,
+		chessControl: ChessControl.ChessControl,
 		scratchControl: ScratchControl.ScratchControl,
 		agreeControl: AgreeControl.AgreeControl
 		}
@@ -36,7 +36,7 @@ export interface AppProps {
 export class ReactApp extends React.Component<AppProps, {}> {
 	render()
 		{
-			let statusLabel: string = this.props.mode === 'chess' ? this.props.boardControl.navText() : '';
+			let statusLabel: string = this.props.mode === 'chess' ? this.props.chessControl.navText() : '';
 			let cmpNav: any = <NavBar url={this.props.url} name={this.props.name} chatLabel={this.props.chatControl.navText()} actions={this.props.actions} statusLabel={statusLabel}/>;
 			let cmpChat: any = this.props.chatControl.bChatOn ? <ChatView cc={this.props.chatControl} /> : null;
 			let cmpStatus: any = <StatusView status={this.props.status} />;
@@ -46,7 +46,7 @@ export class ReactApp extends React.Component<AppProps, {}> {
 			switch (this.props.mode)
 			{
 				case 'chess':
-					cmpMain = <BoardView bc={this.props.boardControl} />;
+					cmpMain = <ChessView chessControl={this.props.chessControl} />;
 					break;
 
 				case 'scratch':

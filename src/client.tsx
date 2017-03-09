@@ -3,13 +3,13 @@ import * as OT from "@terrencecrowley/ot-js";
 import * as OTE from "@terrencecrowley/ot-editutil";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import * as Board from "./board";
+import * as Chess from "./chess";
 import * as ScratchControl from "./scratchcontrol";
 import * as AgreeControl from "./agreecontrol";
 import * as ChatControl from "./chatcontrol";
 import * as NameControl from "./namecontrol";
 import * as QueryControl from "./querycontrol";
-import * as BoardControl from "./boardcontrol";
+import * as ChessControl from "./chesscontrol";
 import * as StatusControl from "./statuscontrol";
 import * as SessionC from "./sessioncontrol";
 import * as CS from "./clientsession";
@@ -93,7 +93,7 @@ class App
 	agreeControl: AgreeControl.AgreeControl;
 	chatControl: ChatControl.ChatControl;
 	nameControl: NameControl.NameControl;
-	boardControl: BoardControl.BoardControl;
+	chessControl: ChessControl.ChessControl;
 	queryControl: QueryControl.QueryControl;
 
 	// For rendering
@@ -122,14 +122,14 @@ class App
 			this.sessionControl = new SessionC.SessionControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.scratchControl = new ScratchControl.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.agreeControl = new AgreeControl.AgreeControl(this.context, this.clientSession, this.forceRender, this.actions);
-			this.boardControl = new BoardControl.BoardControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.chessControl = new ChessControl.ChessControl(this.context, this.clientSession, this.forceRender, this.actions);
 		}
 
 	render(): void
 		{
 			if (this.bRender)
 			{
-				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} boardControl={this.boardControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
+				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} chessControl={this.chessControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
 			}

@@ -1,7 +1,7 @@
 {
-  "name": "chess-share",
+  "name": "js-share",
   "version": "1.0.0",
-  "description": "OT over a chess model",
+  "description": "OT over a variety of application models",
   "main": "./server.js",
   "scripts": {
     "start": "node server",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terrencecrowley/chess-share.git"
+    "url": "git+https://github.com/terrencecrowley/js-share.git"
   },
   "keywords": [
     "Node"
@@ -19,9 +19,9 @@
   "author": "Terry Crowley",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/terrencecrowley/chess-share/issues"
+    "url": "https://github.com/terrencecrowley/js-share/issues"
   },
-  "homepage": "https://github.com/terrencecrowley/chess-share#readme",
+  "homepage": "https://github.com/terrencecrowley/js-share#readme",
   "dependencies": {
     "@terrencecrowley/ot-editutil": "^1.0.0",
     "@terrencecrowley/ot-js": "^1.0.1",

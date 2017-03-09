@@ -1,17 +1,17 @@
 import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 import * as CS from "./clientsession";
-import * as Board from "./board";
+import * as Chess from "./chess";
 import * as ClientActions from "./clientactions";
 
-export class BoardControl
+export class ChessControl
 {
 	context: OT.IExecutionContext;
 	clientSession: CS.ClientSession;
 	reRender: () => void;
 	actions: ClientActions.IClientActions;
 
-	board: Board.Board;		// Local board state
+	chess: Chess.Chess;		// Local board state
 	moves: number[];		// Remote synchronized log of moves
 
 	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void, actions: ClientActions.IClientActions)
@@ -21,7 +21,7 @@ export class BoardControl
 			this.reRender = reRender;
 			this.actions = actions;
 
-			this.board = new Board.Board();
+			this.chess = new Chess.Chess();
 			this.moves = [];
 			this.notifyBoardChange = this.notifyBoardChange.bind(this);
 			cs.onData('chess', this.notifyBoardChange);
@@ -29,15 +29,15 @@ export class BoardControl
 
 	navText(): string
 		{
-			let color: number = this.board.whoseMove();
-			let colorString: string = color == Board.Black ? "Black Moves" : "White Moves";
-			let checkString: string = this.board.isMate() ? " / Mate" : (this.board.isCheck(color) ? " / Check" : "");
+			let color: number = this.chess.whoseMove();
+			let colorString: string = color == Chess.Black ? "Black Moves" : "White Moves";
+			let checkString: string = this.chess.isMate() ? " / Mate" : (this.chess.isCheck(color) ? " / Check" : "");
 			return colorString + checkString;
 		}
 
 	reset(): void
 		{
-			this.board = new Board.Board();
+			this.chess = new Chess.Chess();
 			this.moves = [];
 		}
 
@@ -55,15 +55,15 @@ export class BoardControl
 	syncMoves(): void
 		{
 			// This simple sync algorithm presumes that there is actually turn-taking going on.
-			let nLocalMoves: number = this.board.Moves.length;
+			let nLocalMoves: number = this.chess.Moves.length;
 			let nRemoteMoves: number = this.moves.length / 2;
 
-			// If shared array is larger, make those moves in my local board state
+			// If shared array is larger, make those moves in my local chess state
 			if (nRemoteMoves > nLocalMoves)
 			{
 				for (let i: number = nLocalMoves * 2; i < this.moves.length; i += 2)
-					this.board.move(this.moves[i], this.moves[i+1]);
-				this.board.setSelected(-1);
+					this.chess.move(this.moves[i], this.moves[i+1]);
+				this.chess.setSelected(-1);
 			}
 
 			// If local number of moves is larger, share those moves
@@ -75,9 +75,9 @@ export class BoardControl
 					let editRoot = css.startLocalEdit();
 					let editMoves: OT.OTArrayResource = new OT.OTArrayResource('chess');
 					editMoves.edits.push([ OT.OpRetain, this.moves.length, [] ]);
-					for (let i: number = nRemoteMoves; i < this.board.Moves.length; i++)
+					for (let i: number = nRemoteMoves; i < this.chess.Moves.length; i++)
 					{
-						let m: Board.Move = this.board.Moves[i];
+						let m: Chess.Move = this.chess.Moves[i];
 						editMoves.edits.push([ OT.OpInsert, 2, [ m[0], m[2] ] ]);
 					}
 					editRoot.edits.push(editMoves);
@@ -101,14 +101,14 @@ export class BoardControl
 			//	AND there is a piece at the clicked location
 			//	AND it is the color who gets to move
 			//	THEN set it as the selected square
-			if (this.board.isTargeted(id))
+			if (this.chess.isTargeted(id))
 			{
-				this.board.move(this.board.selected, id);
-				this.board.setSelected(-1);
+				this.chess.move(this.chess.selected, id);
+				this.chess.setSelected(-1);
 				this.syncMoves();
 			}
 			else
-				this.board.setSelected(id);
+				this.chess.setSelected(id);
 			this.reRender();
 		}
 }

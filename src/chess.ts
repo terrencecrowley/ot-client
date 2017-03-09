@@ -32,7 +32,7 @@ export type Move = [number, number, number, number]; // StartPos, PieceValue, En
 function indexRC(r: number, c: number): number { return r*8+c; }
 function invertColor(c: number) { return c == White ? Black : White; }
 
-export class Board
+export class Chess
 {
 	Squares: number[];
 	Captured: number[];
