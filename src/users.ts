@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as OT from '@terrencecrowley/ot-js';
 import * as SM from './serversession';
+import * as bcrypt from 'bcryptjs';
 
 const StateVersion: number = 4.0;
 
@@ -11,6 +12,7 @@ export class User
 	token: string;
 	name: string;
 	email: string;
+	hash: string;
 	sessions: any;
 
 	constructor(o?: any)
@@ -24,6 +26,7 @@ export class User
 				this.token = '';
 				this.name = '';
 				this.email = '';
+				this.hash = '';
 				this.sessions = {};
 			}
 		}
@@ -35,13 +38,15 @@ export class User
 
 	validPassword(pw: string): boolean
 		{
-			// TODO: Implement password storage
-			return true;
+			return bcrypt.compareSync(pw, this.hash);
 		}
 
 	toJSON(): any
 		{
-			return { sid: this.serializedID(), token: this.token, name: this.name, email: this.email, sessions: this.sessions };
+			let o: any = { sid: this.serializedID(), token: this.token, name: this.name, email: this.email, sessions: this.sessions };
+			if (this.hash)
+				o.hash = this.hash;
+			return o;
 		}
 
 	fromJSON(o: any): void
@@ -51,6 +56,10 @@ export class User
 			this.token = o.token;
 			this.name = o.name;
 			this.email = o.email;
+			if (o.hash)
+				this.hash = o.hash;
+			if (o.password)
+				this.hash = bcrypt.hashSync(o.password, 8);
 			this.sessions = o.sessions;
 			if (this.sessions == null)
 				this.sessions = {};

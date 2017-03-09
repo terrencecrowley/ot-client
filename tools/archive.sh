@@ -30,6 +30,7 @@ cp -R ${SRC}/node_modules/passport-local ${DST}/node_modules
 cp -R ${SRC}/node_modules/body-parser ${DST}/node_modules
 cp -R ${SRC}/node_modules/cookie-parser ${DST}/node_modules
 cp -R ${SRC}/node_modules/connect-flash ${DST}/node_modules
+cp -R ${SRC}/node_modules/bcryptjs-flash ${DST}/node_modules
 cp -R ${SRC}/node_modules/@terrencecrowley ${DST}/node_modules
 cd ${DST}
 zip -q -r archive.zip .
