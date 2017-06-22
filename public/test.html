@@ -5,64 +5,31 @@
 <meta name=viewport content="width=device-width, initial-scale=1">
 </head>
 
-<link href="./chess.css" media="all" rel="stylesheet" type="text/css"/>
+<link href="./share.css" media="all" rel="stylesheet" type="text/css"/>
 <style>
-.WhiteKing { position: absolute; clip: rect(0px, 145px, 240px, 0px); left: -0px; height: 200px" }
-.WhiteQueen { position: absolute; clip: rect(0px, 270px, 240px, 150px); left: -150px; height: 200px" }
-.WhiteBishop { position: absolute; clip: rect(0px, 390px, 240px, 275px); left: -275px; height: 200px" }
-.WhiteKnight { position: absolute; clip: rect(0px, 490px, 240px, 390px); left: -390px; height: 200px" }
-.WhiteRook { position: absolute; clip: rect(0px, 610px, 240px, 510px); left: -510px; height: 200px" }
-.WhitePawn { position: absolute; clip: rect(0px, 710px, 240px, 620px); left: -620px; height: 200px" }
-.BlackKing { position: absolute; clip: rect(240px, 145px, 480px, 0px); left: -0px; height: 200px" }
-.BlackQueen { position: absolute; clip: rect(240px, 270px, 480px, 150px); left: -150px; height: 200px" }
-.BlackBishop { position: absolute; clip: rect(240px, 390px, 480px, 275px); left: -275px; height: 200px" }
-.BlackKnight { position: absolute; clip: rect(240px, 490px, 480px, 390px); left: -390px; height: 200px" }
-.BlackRook { position: absolute; clip: rect(240px, 610px, 480px, 510px); left: -510px; height: 200px" }
-.BlackPawn { position: absolute; clip: rect(240px, 710px, 480px, 620px); left: -620px; height: 200px" }
-.block { width: 200px; height: 200px }
-.bg { 
-	background-image: url('./BlackKing.png'); 
-	background-repeat: no-repeat;
-	background-position: bottom;
-	background-size: contain;
-	}
+.left {
+	text-align: left;
+}
+.right {
+	text-align: right;
+}
 </style>
 
-<!-- 
-
-White is 0 y offset
-Black is 240 y offset
-
-Horizonatal Offsets,Widths for pieces are:
-
-King: 0,145
-Queen: 150,120
-Bishop: 275,115
-Knight: 390,100
-Rook: 510,100
-Pawn: 620,90
-
-
--->
 
 
 <body>
 
 
 <div id="root">
-<div class="block bg"></div>
-<div class=block><img src="./pieces.jpg" class=WhiteKing></div>
-<div class=block><img src="./pieces.jpg" class=WhiteQueen></div>
-<div class=block><img src="./pieces.jpg" class=WhiteBishop></div>
-<div class=block><img src="./pieces.jpg" class=WhiteKnight></div>
-<div class=block><img src="./pieces.jpg" class=WhiteRook></div>
-<div class=block><img src="./pieces.jpg" class=WhitePawn></div>
-<div class=block><img src="./pieces.jpg" class=BlackKing></div>
-<div class=block><img src="./pieces.jpg" class=BlackQueen></div>
-<div class=block><img src="./pieces.jpg" class=BlackBishop></div>
-<div class=block><img src="./pieces.jpg" class=BlackKnight></div>
-<div class=block><img src="./pieces.jpg" class=BlackRook></div>
-<div class=block><img src="./pieces.jpg" class=BlackPawn></div>
+
+<div>Some Text Above</div>
+<div class="row">
+<div class="column left">Left Text
+</div>
+<div class="column right">Right Text
+</div>
+</div>
+
 </div>
 
 </body>

@@ -6,6 +6,7 @@
 		"src/clientactions.ts",
 		"src/serversession.ts",
 		"src/chess.ts",
+		"src/plan.ts",
 		"src/agree.ts",
 		"src/scratchcontrol.ts",
 		"src/statuscontrol.ts",
@@ -15,8 +16,10 @@
 		"src/querycontrol.ts",
 		"src/agreecontrol.ts",
 		"src/chesscontrol.ts",
+		"src/plancontrol.ts",
 		"src/users.ts",
 		"src/util.ts",
+		"src/components/inputview.tsx",
 		"src/components/statusview.tsx",
 		"src/components/sessionview.tsx",
 		"src/components/chatview.tsx",
@@ -26,6 +29,7 @@
 		"src/components/navbar.tsx",
 		"src/components/scratchview.tsx",
 		"src/components/chessview.tsx",
+		"src/components/planview.tsx",
 		"src/components/agreeview.tsx"
 	],
 

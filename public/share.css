@@ -41,7 +41,24 @@ td {
 	border-color: black;
 }
 
+.right {
+	text-align: right;
+}
+
 .query {
+	border-style: solid;
+	border-width: 4px;
+	border-color: black;
+	padding: 10px;
+	background-color: white;
+	color: black;
+	width: 75%;
+	position: absolute;
+	left: 12%;
+	top: 20%;
+}
+
+.popupprops {
 	border-style: solid;
 	border-width: 4px;
 	border-color: black;
@@ -272,6 +289,10 @@ input, textarea {
 	flex-grow: 0;
 }
 
+.subtleinput {
+	flex-grow: 0;
+}
+
 .popup {
 	color: black;
 	display: none;
@@ -335,4 +356,96 @@ button {
 
 .actionButton {
 	background-color: lightgreen
+}
+
+.hr
+{
+	background-color: white;
+	padding: 1px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+}
+
+.item:hover
+{
+	background-color: white;
+	padding: 8px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.item
+{
+	background-color: white;
+	padding: 8px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.newitem
+{
+	background-color: #cccccc;
+	padding: 8px;
+	color: blue;
+	text-align: center;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.newitem:hover
+{
+	background-color: LightCyan;
+	padding: 8px;
+	color: black;
+	text-align: center;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.buckethead
+{
+	padding: 8px;
+	text-align: center;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #dddddd;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.buckethead:hover
+{
+	padding: 8px;
+	text-align: center;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.newbucket
+{
+	padding: 8px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #dddddd;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.newbucket:hover
+{
+	background-color: LightCyan;
+	padding: 8px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.items
+{
+	margin-left: 4px;
+	margin-right: 4px;
 }

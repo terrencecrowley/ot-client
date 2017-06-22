@@ -1,6 +1,7 @@
 import * as React from "react";
 import { NavBar } from "./navbar";
 import { ChessView } from "./chessview";
+import { PlanView } from "./planview";
 import { StatusView } from "./statusview";
 import { ChatView } from "./chatview";
 import { NameView } from "./nameview";
@@ -12,6 +13,7 @@ import { IClientActions } from "../clientactions";
 
 import * as SessionControl from "../sessioncontrol";
 import * as ChessControl from "../chesscontrol";
+import * as PlanControl from "../plancontrol";
 import * as ChatControl from "../chatcontrol";
 import * as NameControl from "../namecontrol";
 import * as QueryControl from "../querycontrol";
@@ -29,6 +31,7 @@ export interface AppProps {
 		nameControl: NameControl.NameControl,
 		queryControl: QueryControl.QueryControl,
 		chessControl: ChessControl.ChessControl,
+		planControl: PlanControl.PlanControl,
 		scratchControl: ScratchControl.ScratchControl,
 		agreeControl: AgreeControl.AgreeControl
 		}
@@ -55,6 +58,10 @@ export class ReactApp extends React.Component<AppProps, {}> {
 
 				case 'agree':
 					cmpMain = <AgreeView agreeControl={this.props.agreeControl} />;
+					break;
+
+				case 'plan':
+					cmpMain = <PlanView planControl={this.props.planControl} />;
 					break;
 
 				default:

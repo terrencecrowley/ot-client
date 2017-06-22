@@ -4,12 +4,14 @@ import * as OTE from "@terrencecrowley/ot-editutil";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Chess from "./chess";
+import * as Plan from "./plan";
 import * as ScratchControl from "./scratchcontrol";
 import * as AgreeControl from "./agreecontrol";
 import * as ChatControl from "./chatcontrol";
 import * as NameControl from "./namecontrol";
 import * as QueryControl from "./querycontrol";
 import * as ChessControl from "./chesscontrol";
+import * as PlanControl from "./plancontrol";
 import * as StatusControl from "./statuscontrol";
 import * as SessionC from "./sessioncontrol";
 import * as CS from "./clientsession";
@@ -63,6 +65,10 @@ class Actions implements ClientActions.IClientActions
 					this.app.actionNewChess();
 					break;
 
+				case ClientActions.NewPlan:
+					this.app.actionNewPlan();
+					break;
+
 				case ClientActions.NewAgree:
 					this.app.actionNewAgree();
 					break;
@@ -77,6 +83,10 @@ class Actions implements ClientActions.IClientActions
 
 				case ClientActions.Query:
 					this.app.actionQuery(arg);
+					break;
+
+				case ClientActions.DoneEdits:
+					this.app.actionDone(arg as boolean);
 					break;
 			}
 		}
@@ -94,6 +104,7 @@ class App
 	chatControl: ChatControl.ChatControl;
 	nameControl: NameControl.NameControl;
 	chessControl: ChessControl.ChessControl;
+	planControl: PlanControl.PlanControl;
 	queryControl: QueryControl.QueryControl;
 
 	// For rendering
@@ -123,13 +134,14 @@ class App
 			this.scratchControl = new ScratchControl.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.agreeControl = new AgreeControl.AgreeControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.chessControl = new ChessControl.ChessControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.planControl = new PlanControl.PlanControl(this.context, this.clientSession, this.forceRender, this.actions);
 		}
 
 	render(): void
 		{
 			if (this.bRender)
 			{
-				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} chessControl={this.chessControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
+				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} chessControl={this.chessControl} planControl={this.planControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
 			}
@@ -190,6 +202,11 @@ class App
 			this.clientSession.reset('chess');
 		}
 
+	actionNewPlan(): void
+		{
+			this.clientSession.reset('plan');
+		}
+
 	actionNewScratch(): void
 		{
 			this.clientSession.reset('scratch');
@@ -213,6 +230,19 @@ class App
 	actionQuery(props: any): void
 		{
 			this.queryControl.query(props);
+		}
+
+	actionDone(ok: boolean): void
+		{
+			this.statusControl.doneEdits(ok);
+			this.sessionControl.doneEdits(ok);
+			this.scratchControl.doneEdits(ok);
+			this.agreeControl.doneEdits(ok);
+			this.chatControl.doneEdits(ok);
+			this.nameControl.doneEdits(ok);
+			this.chessControl.doneEdits(ok);
+			this.planControl.doneEdits(ok);
+			this.queryControl.doneEdits(ok);
 		}
 
 	tick(): void

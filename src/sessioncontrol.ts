@@ -22,6 +22,10 @@ export class SessionControl
 			this.user = cs.user;
 		}
 
+	doneEdits(ok: boolean): void
+		{
+		}
+
 	notifyStatusChange(cs: CS.ClientSession)
 		{
 			this.user = cs.user;

@@ -47,6 +47,7 @@ export class ClientSessionState
 	sessionView: any;
 	pendingType: string;
 	clientEngine: OT.OTClientEngine;
+	state: any;
 	meta: any;
 	bFull: boolean;
 	bReachable: boolean;
@@ -60,6 +61,7 @@ export class ClientSessionState
 			this.sessionView = {};
 			this.pendingType = '';
 			this.clientEngine = null;
+			this.state = {};
 			this.meta = {};
 			this.bReachable = false;
 			this.bFull = false;
@@ -451,6 +453,7 @@ export class ClientSession
 	speed: SpeedManager;
 
 	// Registered observers
+	onStateList: any;
 	onDataList: any;
 	onJoinList: any;
 	onStatusList: any;
@@ -467,6 +470,7 @@ export class ClientSession
 
 			this.speed = new SpeedManager();
 
+			this.onStateList = [];
 			this.onDataList = {};
 			this.onJoinList = {};
 			this.onStatusList = [];
@@ -504,6 +508,11 @@ export class ClientSession
 			aCB.push(cb);
 		}
 
+	onState(cb: any): void
+		{
+			this.onStateList.push(cb);
+		}
+
 	onStatusChange(cb: any): void
 		{
 			this.onStatusList.push(cb);
@@ -513,6 +522,12 @@ export class ClientSession
 		{
 			for (let i: number = 0; i < this.onStatusList.length; i++)
 				(this.onStatusList[i])(this);
+		}
+
+	notifyState(): void
+		{
+			for (let i: number = 0; i < this.onStateList.length; i++)
+				(this.onStateList[i])(this, this.session.state);
 		}
 
 	notifyJoin(): void
@@ -532,6 +547,10 @@ export class ClientSession
 			if (this.session.clientEngine)
 			{
 				let objVal: any = this.session.clientEngine.toValue();
+
+				// Cache state in the session. Set before other notifications.
+				this.session.state = objVal;
+				this.notifyState();
 
 				// Cache meta information in the session. Set before other notifications.
 				if (objVal[MetaResource] !== undefined)

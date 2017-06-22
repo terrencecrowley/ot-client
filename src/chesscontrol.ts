@@ -41,6 +41,10 @@ export class ChessControl
 			this.moves = [];
 		}
 
+	doneEdits(ok: boolean): void
+		{
+		}
+
 	notifyBoardChange(cs: CS.ClientSession, moves: any)
 		{
 			if (moves === undefined)

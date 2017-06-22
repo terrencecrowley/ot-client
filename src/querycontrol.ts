@@ -28,6 +28,11 @@ export class QueryControl
 			this.reRender();
 		}
 
+	doneEdits(ok: boolean): void
+		{
+			this.query();
+		}
+
 	fire(result: boolean): void
 		{
 			if (this.props.callback)

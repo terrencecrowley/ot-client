@@ -24,6 +24,10 @@ export class StatusControl
 			cs.onData('WellKnownName_users', this.notifyUserChange);
 		}
 
+	doneEdits(ok: boolean): void
+		{
+		}
+
 	notifyJoin(cs: CS.ClientSession)
 		{
 			let newStatus: string;

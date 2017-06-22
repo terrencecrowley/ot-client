@@ -15,6 +15,7 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 			this.handleClick = this.handleClick.bind(this);
 			this.handleClickNewScratch = this.handleClickNewScratch.bind(this);
 			this.handleClickNewChess = this.handleClickNewChess.bind(this);
+			this.handleClickNewPlan = this.handleClickNewPlan.bind(this);
 			this.handleClickNewAgree = this.handleClickNewAgree.bind(this);
 		}
 
@@ -37,6 +38,14 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 	handleClickNewChess(e: any): boolean
 		{
 			this.props.sc.actions.fire(ClientActions.NewChess);
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	handleClickNewPlan(e: any): boolean
+		{
+			this.props.sc.actions.fire(ClientActions.NewPlan);
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -87,6 +96,8 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 						<button className={'actionButton'} onClick={this.handleClickNewChess}>New Chess</button>
 						&nbsp;
 						<button className={'actionButton'} onClick={this.handleClickNewAgree}>New Agreed</button>
+						&nbsp;
+						<button className={'actionButton'} onClick={this.handleClickNewPlan}>New Plan</button>
 					 </div>
 					);
 		}

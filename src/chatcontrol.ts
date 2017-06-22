@@ -93,6 +93,10 @@ export class ChatControl
 			this.reRender();
 		}
 
+	doneEdits(ok: boolean): void
+		{
+		}
+
 	notifyLocalChange(s: string): void
 		{
 			let css: CS.ClientSessionState = this.clientSession.session;

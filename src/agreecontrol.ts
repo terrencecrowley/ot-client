@@ -4,6 +4,7 @@ import * as CS from "./clientsession";
 import * as ClientActions from "./clientactions";
 import * as Agree from "./agree";
 import * as Util from "./util";
+import * as IP from "./components/inputview";
 
 export class AgreeControl
 {
@@ -14,6 +15,9 @@ export class AgreeControl
 
 	userMap: any;		// User names indexed by clientID
 	agree: Agree.Agree;
+
+	propsUser: IP.InputProps;
+	propsChoice: IP.InputProps;
 
 	// pending local action
 	private editRoot: OT.OTCompositeResource;
@@ -49,6 +53,14 @@ export class AgreeControl
 			this.notifyLocal_setUser = this.notifyLocal_setUser.bind(this);
 			this.notifyLocal_setChoice = this.notifyLocal_setChoice.bind(this);
 			this.notifyLocal_setSelect = this.notifyLocal_setSelect.bind(this);
+
+			this.updateUser = this.updateUser.bind(this);
+			this.doneUser = this.doneUser.bind(this);
+			this.updateChoice = this.updateChoice.bind(this);
+			this.doneChoice = this.doneChoice.bind(this);
+
+			this.propsUser = { bActive: false, val: '+ User', valEdit: '', update: this.updateUser, done: this.doneUser };
+			this.propsChoice = { bActive: false, val: '+ Choice', valEdit: '', update: this.updateChoice, done: this.doneChoice };
 		}
 
 	reset(): void
@@ -211,5 +223,57 @@ export class AgreeControl
 		{
 			if (this.agree.selects[prop] === undefined || this.agree.selects[prop] != value)
 				this.notifyLocal_setProp('selects', prop, value);
+		}
+
+	doneEdits(ok: boolean): void
+		{
+			this.doneUser(ok);
+			this.doneChoice(ok);
+			this.propsUser.bActive = false;
+			this.propsChoice.bActive = false;
+		}
+
+	editUser(): void
+		{
+			this.actions.fire(ClientActions.DoneEdits, true);
+			this.propsUser.bActive = true;
+		}
+
+	editChoice(): void
+		{
+			this.actions.fire(ClientActions.DoneEdits, true);
+			this.propsChoice.bActive = true;
+		}
+
+	updateUser(valEdit: string): void
+		{
+			this.propsUser.valEdit = valEdit;
+			this.reRender();
+		}
+
+	updateChoice(valEdit: string): void
+		{
+			this.propsChoice.valEdit = valEdit;
+			this.reRender();
+		}
+
+	doneUser(ok: boolean): void
+		{
+			if (this.propsUser.bActive && ok && this.propsUser.valEdit != '')
+				this.notifyLocal_setUser('anom/' + Util.createGuid(), this.propsUser.valEdit);
+			else
+				this.propsUser.bActive = false;
+			this.propsUser.valEdit = '';
+			this.reRender();
+		}
+
+	doneChoice(ok: boolean): void
+		{
+			if (this.propsChoice.bActive && ok && this.propsChoice.valEdit != '')
+				this.notifyLocal_setChoice([ Util.createGuid(), 'enum', this.propsChoice.valEdit, '' ]);
+			else
+				this.propsChoice.bActive = false;
+			this.propsChoice.valEdit = '';
+			this.reRender();
 		}
 }

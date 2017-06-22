@@ -60,6 +60,10 @@ export class ScratchControl
 			this.selectionEnd = 0;
 		}
 
+	doneEdits(ok: boolean): void
+		{
+		}
+
 	notifyData(cs: CS.ClientSession, a: any): void
 		{
 			if (a === undefined)
