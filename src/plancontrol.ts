@@ -15,8 +15,14 @@ export class PlanControl
 
 	plan: Plan.Plan;		// Local plan state
 
-	propsBucket: IP.InputProps;
-	propsItem: IP.InputProps;
+	itemEdit: Plan.IPlanItem;
+
+	propsBucketNew: IP.InputProps;
+	propsItemNew: IP.InputProps;
+	propsItemName: IP.InputProps;
+	propsItemList: IP.InputProps;
+	propsItemListNew: IP.InputProps;
+
 	propUIDBucket: string;
 
 	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void, actions: ClientActions.IClientActions)
@@ -30,13 +36,17 @@ export class PlanControl
 			this.notifyPlanChange = this.notifyPlanChange.bind(this);
 			cs.onState(this.notifyPlanChange);
 
+			this.itemEdit = null;
+
 			this.updateBucket = this.updateBucket.bind(this);
 			this.doneBucket = this.doneBucket.bind(this);
 			this.updateItem = this.updateItem.bind(this);
 			this.doneItem = this.doneItem.bind(this);
+			this.updateItemName = this.updateItemName.bind(this);
 
-			this.propsBucket = { bActive: false, val: '+ New Bucket', valEdit: '', update: this.updateBucket, done: this.doneBucket };
-			this.propsItem = { bActive: false, val: '', valEdit: '', update: this.updateItem, done: this.doneItem };
+			this.propsBucketNew = { bFocus: true, bActive: false, val: '+ New Bucket', valEdit: '', update: this.updateBucket, done: this.doneBucket };
+			this.propsItemNew = { bFocus: true, bActive: false, val: '', valEdit: '', update: this.updateItem, done: this.doneItem };
+			this.propsItemName = { bFocus: false, bActive: false, val: '', valEdit: '', update: this.updateItemName, done: null };
 			this.propUIDBucket = '';
 		}
 
@@ -97,61 +107,99 @@ export class PlanControl
 			}
 		}
 
+	editItemProperty(item: Plan.IPlanItem, sProp: string): void
+		{
+			let css: CS.ClientSessionState = this.clientSession.session;
+			if (css.clientEngine)
+			{
+				let editRoot = css.startLocalEdit();
+
+				let editItem: OT.OTMapResource = new OT.OTMapResource(item.uid);
+				editItem.edits.push([ OT.OpMapSet, sProp, item[sProp] ]);
+				editRoot.edits.push(editItem);
+
+				css.addLocal(editRoot);
+				css.tick();
+			}
+		}
+
 	doneEdits(ok: boolean): void
 		{
+			this.itemEdit = null;
 			this.doneBucket(ok);
 			this.doneItem(ok);
-			this.propsItem.bActive = false;
-			this.propsBucket.bActive = false;
+			this.propsItemNew.bActive = false;
+			this.propsBucketNew.bActive = false;
+			this.reRender();
+		}
+
+	startEditItem(uidItem: string): void
+		{
+			this.doneEdits(true);
+			this.itemEdit = this.plan.getItemByUID(uidItem);
+			this.propsItemName.bActive = true;
+			this.propsItemName.val = this.itemEdit.name;
+			this.propsItemName.valEdit = this.itemEdit.name;
+			this.reRender();
+		}
+
+	endEditItem(): void
+		{
+			this.doneEdits(true);
 		}
 
 	editNewBucket(): void
 		{
 			this.actions.fire(ClientActions.DoneEdits, true);
-			this.propsBucket.bActive = true;
+			this.propsBucketNew.bActive = true;
 		}
 
 	editNewItem(uidBucket: string): void
 		{
 			this.actions.fire(ClientActions.DoneEdits, true);
-			this.propsItem.bActive = true;
+			this.propsItemNew.bActive = true;
 			this.propUIDBucket = uidBucket;
 		}
 
 	updateBucket(valEdit: string): void
 		{
-			this.propsBucket.valEdit = valEdit;
+			this.propsBucketNew.valEdit = valEdit;
 			this.reRender();
 		}
 
 	updateItem(valEdit: string): void
 		{
-			this.propsItem.valEdit = valEdit;
+			this.propsItemNew.valEdit = valEdit;
 			this.reRender();
+		}
+
+	updateItemName(valEdit: string): void
+		{
+			this.propsItemName.valEdit = valEdit;
+			this.itemEdit.name = valEdit;
+			this.editItemProperty(this.itemEdit, 'name');
 		}
 
 	doneBucket(ok: boolean): void
 		{
-			if (this.propsBucket.bActive && ok && this.propsBucket.valEdit != '')
-				this.addBucket(this.propsBucket.valEdit);
-			else
-				this.propsBucket.bActive = false;
-			this.propsBucket.valEdit = '';
+			if (this.propsBucketNew.bActive && ok && this.propsBucketNew.valEdit != '')
+				this.addBucket(this.propsBucketNew.valEdit);
+			this.propsBucketNew.bActive = false;
+			this.propsBucketNew.valEdit = '';
 			this.reRender();
 		}
 
 	doneItem(ok: boolean): void
 		{
-			if (this.propsItem.bActive && ok && this.propsItem.valEdit != '')
+			if (this.propsItemNew.bActive && ok && this.propsItemNew.valEdit != '')
 			{
 				let item: Plan.IPlanItem = this.plan.createEmptyItem();
 				item.bucket = this.propUIDBucket;
-				item.name = this.propsItem.valEdit;
+				item.name = this.propsItemNew.valEdit;
 				this.editItem(item);
 			}
-			else
-				this.propsItem.bActive = false;
-			this.propsItem.valEdit = '';
+			this.propsItemNew.bActive = false;
+			this.propsItemNew.valEdit = '';
 			this.reRender();
 		}
 }

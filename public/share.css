@@ -217,6 +217,11 @@ input, textarea {
 	align-items: stretch;
 }
 
+.sessioncell {
+	white-space: nowrap;
+	margin: 4px;
+}
+
 .header {
 	display: flex;
 	flex-grow: 0;
@@ -291,6 +296,9 @@ input, textarea {
 
 .subtleinput {
 	flex-grow: 0;
+	border-width: 0;
+	margin-top: 0;
+	background-color: white;
 }
 
 .popup {
@@ -395,6 +403,7 @@ button {
 	text-align: center;
 	margin-top: 4px;
 	margin-bottom: 4px;
+	min-width: 150px;
 }
 .newitem:hover
 {
@@ -404,6 +413,7 @@ button {
 	text-align: center;
 	margin-top: 4px;
 	margin-bottom: 4px;
+	min-width: 150px;
 }
 .buckethead
 {

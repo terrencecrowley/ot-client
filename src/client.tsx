@@ -144,6 +144,8 @@ class App
 				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} chessControl={this.chessControl} planControl={this.planControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
+				if ($('#autofocus'))
+					$('#autofocus').focus();
 			}
 		}
 

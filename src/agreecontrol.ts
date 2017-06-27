@@ -59,8 +59,8 @@ export class AgreeControl
 			this.updateChoice = this.updateChoice.bind(this);
 			this.doneChoice = this.doneChoice.bind(this);
 
-			this.propsUser = { bActive: false, val: '+ User', valEdit: '', update: this.updateUser, done: this.doneUser };
-			this.propsChoice = { bActive: false, val: '+ Choice', valEdit: '', update: this.updateChoice, done: this.doneChoice };
+			this.propsUser = { bFocus: true, bActive: false, val: '+ User', valEdit: '', update: this.updateUser, done: this.doneUser };
+			this.propsChoice = { bFocus: true, bActive: false, val: '+ Choice', valEdit: '', update: this.updateChoice, done: this.doneChoice };
 		}
 
 	reset(): void

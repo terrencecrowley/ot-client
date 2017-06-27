@@ -33,7 +33,7 @@ export class NameView extends React.Component<NameProps, NameState> {
 			return (
 				<div onClick={this.handleClick} >
 					<hr />
-					<IP.InputView bActive={p.bActive} valEdit={p.valEdit} val={p.val} done={p.done} update={p.update} />
+					<IP.InputView bFocus={p.bFocus} bActive={p.bActive} valEdit={p.valEdit} val={p.val} done={p.done} update={p.update} />
 					<hr />
 				</div>
 				);

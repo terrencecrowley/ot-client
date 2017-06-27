@@ -62,42 +62,76 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 	render()
 		{
 			let user: any = this.props.sc.user;
-			let sessionButtons: any = [];
-			if (user.sessions)
+			let sessionColumns: any = [];
+			if (user.sessions && user.sessions.length > 0)
 			{
+				let sessionCells: any = [];
+				// Name
+				sessionCells.push(<div className='row sessioncell'><b>Name</b></div>);
 				for (let i: number = 0; i < user.sessions.length; i++)
 				{
 					let s: any = user.sessions[i];
-					sessionButtons[i] =
-						(
-							<div>
+					sessionCells.push(<div className='row sessioncell'>{s.sessionName}</div>);
+				}
+				sessionColumns.push(<div className='column'>{sessionCells}</div>);
+
+				// Type
+				sessionCells = [];
+				sessionCells.push(<div className='row sessioncell'><b>Type</b></div>);
+				for (let i: number = 0; i < user.sessions.length; i++)
+				{
+					let s: any = user.sessions[i];
+					sessionCells.push(<div className='row sessioncell'>{s.sessionType}</div>);
+				}
+				sessionColumns.push(<div className='column'>{sessionCells}</div>);
+
+				// Active
+				sessionCells = [];
+				sessionCells.push(<div className='row sessioncell'><b>Active</b></div>);
+				for (let i: number = 0; i < user.sessions.length; i++)
+				{
+					let s: any = user.sessions[i];
+					sessionCells.push(<div className='row sessioncell'>{String(s.clientCount) + ' active'}</div>);
+				}
+				sessionColumns.push(<div className='column'>{sessionCells}</div>);
+
+				// Join
+				sessionCells = [];
+				sessionCells.push(<div className='row sessioncell'>&nbsp;</div>);
+				for (let i: number = 0; i < user.sessions.length; i++)
+				{
+					let s: any = user.sessions[i];
+					sessionCells.push(
+						<div className='row sessioncell'>
 							<button className={'actionButton'} onClick={this.handleClick} id={s.sessionID}>
 								Join
 							</button>
-							&nbsp;
-							&nbsp;
-							{s.sessionName}({s.sessionType}):&nbsp;{String(s.clientCount) + " users active"}
-							<br/>
-							</div>
-						);
+						</div>);
 				}
+				sessionColumns.push(<div className='column'>{sessionCells}</div>);
 			}
 			else
 			{
-				sessionButtons.push(<div>No Sessions</div>);
+				sessionColumns.push(<div>No Sessions</div>);
 			}
 			return (
 					 <div>
-					 	Available Sessions:<br/><br/>
-						{sessionButtons}
-						<br/>
-						<button className={'actionButton'} onClick={this.handleClickNewScratch}>New Text</button>
-						&nbsp;
-						<button className={'actionButton'} onClick={this.handleClickNewChess}>New Chess</button>
-						&nbsp;
-						<button className={'actionButton'} onClick={this.handleClickNewAgree}>New Agreed</button>
-						&nbsp;
-						<button className={'actionButton'} onClick={this.handleClickNewPlan}>New Plan</button>
+						<div>
+							Available Sessions:<br/><br/>
+						</div>
+						<div className='row'>
+							{sessionColumns}
+						</div>
+						<div>
+							<br/>
+							<button className={'actionButton'} onClick={this.handleClickNewScratch}>New Text</button>
+							&nbsp;
+							<button className={'actionButton'} onClick={this.handleClickNewChess}>New Chess</button>
+							&nbsp;
+							<button className={'actionButton'} onClick={this.handleClickNewAgree}>New Agreed</button>
+							&nbsp;
+							<button className={'actionButton'} onClick={this.handleClickNewPlan}>New Plan</button>
+						</div>
 					 </div>
 					);
 		}
