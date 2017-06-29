@@ -1,6 +1,7 @@
 import * as React from "react";
 
 export interface InputProps {
+	bImg: boolean,
 	bActive: boolean,
 	bFocus: boolean,
 	val: string,
@@ -20,6 +21,7 @@ export class InputView extends React.Component<InputProps, InputState> {
 			this.handleOKClick = this.handleOKClick.bind(this);
 			this.handleTextChange = this.handleTextChange.bind(this);
 			this.handleTextReturn = this.handleTextReturn.bind(this);
+			this.handleBlur = this.handleBlur.bind(this);
 		}
 
 	handleTextChange(event: any): void
@@ -38,7 +40,8 @@ export class InputView extends React.Component<InputProps, InputState> {
 				if (this.props.bActive)
 				{
 					let val: string = (event === undefined) ? this.props.valEdit : event.target.value;
-					this.props.done(true);
+					if (this.props.done)
+						this.props.done(true);
 				}
 			}
 		}
@@ -55,6 +58,14 @@ export class InputView extends React.Component<InputProps, InputState> {
 			return false;
 		}
 
+	handleBlur(e: any): boolean
+		{
+			if (this.props.done && this.props.val != '' && ! this.props.bImg) this.props.done(false);
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
 	render()
 		{
 			if (this.props.bActive)
@@ -62,7 +73,7 @@ export class InputView extends React.Component<InputProps, InputState> {
 				let buttons: any = null;
 				let className: string = 'chatinput';
 				let id: string = this.props.bFocus ? 'autofocus' : 'nofocus';
-				if (this.props.done)
+				if (this.props.done && this.props.bImg)
 				{
 					buttons = (
 						<span>
@@ -77,14 +88,14 @@ export class InputView extends React.Component<InputProps, InputState> {
 
 				return (
 					<div>
-						<input className={className} id={id} type='text' value={this.props.valEdit} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} />
+						<input className={className} id={id} type='text' value={this.props.valEdit} onChange={this.handleTextChange} onKeyPress={this.handleTextReturn} onBlur={this.handleBlur} />
 						{buttons}
 					</div>
 					);
 			}
 			else
 			{
-				return (<div>{this.props.val}</div>);
+				return (<div className='faded'>{this.props.val}</div>);
 			}
 		}
 }

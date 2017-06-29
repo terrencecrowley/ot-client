@@ -124,13 +124,13 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 						</div>
 						<div>
 							<br/>
-							<button className={'actionButton'} onClick={this.handleClickNewScratch}>New Text</button>
+							<button className='actionButton' onClick={this.handleClickNewScratch}>New Text</button>
 							&nbsp;
-							<button className={'actionButton'} onClick={this.handleClickNewChess}>New Chess</button>
+							<button className='actionButton' onClick={this.handleClickNewChess}>New Chess</button>
 							&nbsp;
-							<button className={'actionButton'} onClick={this.handleClickNewAgree}>New Agreed</button>
+							<button className='actionButton' onClick={this.handleClickNewAgree}>New Agreed</button>
 							&nbsp;
-							<button className={'actionButton'} onClick={this.handleClickNewPlan}>New Plan</button>
+							<button className='actionButton' onClick={this.handleClickNewPlan}>New Plan</button>
 						</div>
 					 </div>
 					);

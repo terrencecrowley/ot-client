@@ -30,7 +30,7 @@ export class NameControl
 			this.doneName = this.doneName.bind(this);
 
 			let s: string = (this.name == '') ? 'Name' : this.name;
-			this.propsName = { bFocus: true, bActive: false, val: s, valEdit: '', update: this.updateName, done: this.doneName };
+			this.propsName = { bImg: true, bFocus: true, bActive: false, val: s, valEdit: '', update: this.updateName, done: this.doneName };
 		}
 
 	reset(): void

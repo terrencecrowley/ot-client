@@ -41,8 +41,9 @@ PlanItem(UID, map):
 		bucket: string, 	// bucketitem_uid
 		checklist: string,	// checklistarray_uid
 		comments: string,	// commentarray_uid
+		showCheck: boolean,
 		startdate: string,
-		enddate: string,
+		duedate: string,
 		progress: number,
 		state: number, 		// 0: active, 1: completed, 2: deleted
 		label1: boolean,
@@ -71,6 +72,10 @@ import * as Util from "./util";
 
 export const BucketsName: string = 'buckets';
 export const ItemsName: string = 'items';
+export type ICheckListItem  = [ string, boolean ];
+export type ICheckListArray = ICheckListItem[];
+export type IComment = [ string, string, string ];
+export type ICommentArray = IComment[];
 
 export interface IPlanItem
 {
@@ -84,8 +89,9 @@ export interface IPlanItem
 	bucket: string; 	// bucketitem_uid
 	checklist: string;	// checklistarray_uid
 	comments: string;	// commentarray_uid
+	bShowCheck: boolean;
 	startdate: string;
-	enddate: string;
+	duedate: string;
 	progress: number;
 	state: number; 		// 0: active, 1: completed, 2: deleted
 	label1: boolean;
@@ -125,6 +131,7 @@ export class Plan
 			i.description = '';
 			i.assigned_id = '';
 			i.created_id = '';
+			i.bShowCheck = false;
 			let d = Date();
 			i.created_date = d.toString();
 			i.bucket = '';
@@ -186,5 +193,34 @@ export class Plan
 			if (this.value && this.value[BucketsName])
 				return (this.value[BucketsName])[uid];
 			return 'ErrorNoBucket';
+		}
+
+	getBuckets(): any
+		{
+			if (this.value[BucketsName])
+				return this.value[BucketsName];
+			return {};
+		}
+
+	getCheckList(item: IPlanItem): ICheckListArray
+		{
+			if (this.value)
+			{
+				let a: ICheckListArray = this.value[item.checklist] as ICheckListArray;
+				if (a)
+					return a;
+			}
+			return [];
+		}
+
+	getComments(item: IPlanItem): ICommentArray
+		{
+			if (this.value)
+			{
+				let a: ICommentArray = this.value[item.comments] as ICommentArray;
+				if (a)
+					return a;
+			}
+			return [];
 		}
 }

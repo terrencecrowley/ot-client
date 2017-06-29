@@ -7,11 +7,17 @@
 
 <link href="./share.css" media="all" rel="stylesheet" type="text/css"/>
 <style>
-.left {
-	text-align: left;
+.blueblock {
+	wwidth: 50px;
+	hheight: 50px;
+	border-style: solid;
+	border-width: 2px;
+	border-color: blue;
+	padding: 4px;
 }
-.right {
-	text-align: right;
+
+.spread {
+	justify-content: space-between;
 }
 </style>
 
@@ -23,12 +29,9 @@
 <div id="root">
 
 <div>Some Text Above</div>
-<div class="row">
-<div class="column left">Left Text
-</div>
-<div class="column right">Right Text
-</div>
-</div>
+<div class="row"> <div class=blueblock>B1</div> <div class=blueblock>B2</div> </div>
+<div class="column spread"> <div class=blueblock>B3</div> <div class=blueblock>B4</div> </div>
+<div>Some Text Below</div>
 
 </div>
 

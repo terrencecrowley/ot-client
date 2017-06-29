@@ -486,6 +486,13 @@ export class ClientSession
 			return this.session.bPendingConnection;
 		}
 
+	get userID(): string
+		{
+			if (this.user.ns && this.user.id)
+				return this.user.ns + '/' + this.user.id;
+			return '';
+		}
+
 	onData(resourceName: string, cb: any): void
 		{
 			let aCB: any = this.onDataList[resourceName];

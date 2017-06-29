@@ -243,6 +243,22 @@ input, textarea {
 	width: 100%;
 }
 
+.spread {
+	justify-content: space-between;
+}
+
+.distinctblock {
+	padding-bottom: 10px;
+}
+
+.faded {
+	color: lightgrey;
+}
+
+.deleted {
+	text-decoration: line-through;
+}
+
 .headerrow {
 	display: flex;
 	flex-direction: row;

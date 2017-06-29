@@ -88,7 +88,7 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			let p: IP.InputProps = agreeControl.propsChoice;
 			row.push(
 				<div className={'agreeCell agreeColHeader'} id='' onClick={this.handleChoiceClick}>
-				<IP.InputView bFocus={p.bFocus} bActive={p.bActive} valEdit={p.valEdit} val={p.val} done={p.done} update={p.update} />
+				<IP.InputView bImg={p.bImg} bFocus={p.bFocus} bActive={p.bActive} valEdit={p.valEdit} val={p.val} done={p.done} update={p.update} />
 				</div>);
 			rows.push(<div className='tablerow'>{row}</div>);
 
@@ -124,7 +124,7 @@ export class AgreeView extends React.Component<AgreeProps, AgreeState> {
 			row = [];
 			row.push(
 				<div className={'agreeCell agreeRowHeader'} id='' onClick={this.handleUserClick}>
-				<IP.InputView bFocus={p.bFocus} bActive={p.bActive} valEdit={p.valEdit} val={p.val} done={p.done} update={p.update} />
+				<IP.InputView bImg={p.bImg} bFocus={p.bFocus} bActive={p.bActive} valEdit={p.valEdit} val={p.val} done={p.done} update={p.update} />
 				</div>);
 			for (let k: number = 0; k <= agree.choices.length; k++) row.push(<div className={'agreeCell agreeEmpty'}></div>);
 			rows.push(<div className='tablerow'>{row}</div>);
