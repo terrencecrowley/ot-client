@@ -73,14 +73,14 @@ export class ChessView extends React.Component<ChessProps, ChessState> {
 						);
 				}
 				rows[i] = (
-					<div className="row">
+					<div className="tablerow">
 					{row}
 					</div>
 					);
 			}
 
 			return (
-				<div>
+				<div className="table">
 				{rows}
 				</div>
 				);

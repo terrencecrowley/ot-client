@@ -4,6 +4,7 @@ export interface InputProps {
 	bImg: boolean,
 	bActive: boolean,
 	bFocus: boolean,
+	bFaded: boolean,
 	val: string,
 	valEdit: string,
 	update: (val: string) => void,
@@ -95,7 +96,10 @@ export class InputView extends React.Component<InputProps, InputState> {
 			}
 			else
 			{
-				return (<div className='faded'>{this.props.val}</div>);
+				if (this.props.bFaded)
+					return (<div className='faded'>{this.props.val}</div>);
+				else
+					return (<div>{this.props.val}</div>);
 			}
 		}
 }

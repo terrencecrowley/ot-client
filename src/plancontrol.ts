@@ -56,14 +56,14 @@ export class PlanControl
 			this.addCheckList = this.addCheckList.bind(this);
 			this.deleteBucket = this.deleteBucket.bind(this);
 
-			this.propsBucketNew = { bImg: true, bFocus: true, bActive: false, val: '+ New Bucket', valEdit: '', update: this.updateBucket, done: this.doneBucket };
-			this.propsItemNew = { bImg: true, bFocus: true, bActive: false, val: '', valEdit: '', update: this.updateItem, done: this.doneItem };
-			this.propsItemName = { bImg: false, bFocus: false, bActive: false, val: '', valEdit: '', update: this.updateItemName, done: null };
-			this.propsStartDate = { bImg: false, bFocus: false, bActive: true, val: 'Start anytime', valEdit: '', update: this.updateStartDate, done: null };
-			this.propsDueDate = { bImg: false, bFocus: false, bActive: true, val: 'Due anytime', valEdit: '', update: this.updateDueDate, done: null };
-			this.propsDescription = { bImg: false, bFocus: false, bActive: false, val: '', valEdit: '', update: this.updateDescription, done: null };
-			this.propsComment = { bImg: false, bFocus: false, bActive: false, val: '', valEdit: '', update: this.updateComment, done: null };
-			this.propsCheckList = { bImg: false, bFocus: true, bActive: false, val: 'add an item', valEdit: '', update: this.updateCheckList, done: this.addCheckList };
+			this.propsBucketNew = { bImg: true, bFocus: true, bActive: false, bFaded: false, val: '+ New Bucket', valEdit: '', update: this.updateBucket, done: this.doneBucket };
+			this.propsItemNew = { bImg: true, bFocus: true, bActive: false, bFaded: false, val: '', valEdit: '', update: this.updateItem, done: this.doneItem };
+			this.propsItemName = { bImg: false, bFocus: false, bActive: false, bFaded: false, val: '', valEdit: '', update: this.updateItemName, done: null };
+			this.propsStartDate = { bImg: false, bFocus: false, bActive: true, bFaded: false, val: 'Start anytime', valEdit: '', update: this.updateStartDate, done: null };
+			this.propsDueDate = { bImg: false, bFocus: false, bActive: true, bFaded: false, val: 'Due anytime', valEdit: '', update: this.updateDueDate, done: null };
+			this.propsDescription = { bImg: false, bFocus: false, bActive: false, bFaded: false, val: '', valEdit: '', update: this.updateDescription, done: null };
+			this.propsComment = { bImg: false, bFocus: false, bActive: false, bFaded: false, val: '', valEdit: '', update: this.updateComment, done: null };
+			this.propsCheckList = { bImg: false, bFocus: true, bActive: false, bFaded: true, val: 'add an item', valEdit: '', update: this.updateCheckList, done: this.addCheckList };
 			this.propUIDBucket = '';
 		}
 

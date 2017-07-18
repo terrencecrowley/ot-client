@@ -8,27 +8,11 @@
 <link href="./share.css" media="all" rel="stylesheet" type="text/css"/>
 <style>
 
-.gridblock {
-	width: 12vw;
-	height: 12vw;
-}
-
-.border {
-	border-style: solid;
-	border-width: 4px;
-	border-color: black;
-	width: 100%;
-	height: 100%;
-}
-
-.contentcell {
-	background-repeat: no-repeat;
-	background-position: bottom;
-	background-size: contain;
-	height: 100%;
-	width: 100%;
-}
-
+.border { border-style: solid; border-color: black; border-width: 1px; }
+.full { width: 100%; }
+.table { display: table; }
+.trow { display: table-row; }
+.tcell { display: table-cell; padding: 4px; vertical-align: middle; }
 
 </style>
 
@@ -39,32 +23,11 @@
 
 <div id="root">
 
-<div>Some Text Above</div>
-<div class="row">
-
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-
+<div class='table border full'>
+<div class='trow'><div class='tcell'>T11 With some longer text</div><div class='tcell'>T12</div><div class='tcell'>T13</div></div>
+<div class='trow'><div class='tcell'>T21</div><div class='tcell'>T22</div><div class='tcell'>T23</div></div>
+<div class='trow'><div class='tcell'>T31</div><div class='tcell'>T32</div><div class='tcell'><button style="height: 80px">T33 with more text</button></div></div>
 </div>
-<div class="row">
-
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
-
-</div>
-<div>Some Text Below</div>
 
 </div>
 

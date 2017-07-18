@@ -111,6 +111,7 @@ td {
 }
 
 .cellgrid {
+	display: table-cell;
 }
 
 .cellblack {
@@ -118,8 +119,8 @@ td {
 	background-repeat: no-repeat;
 	background-position: bottom;
 	background-size: contain;
-	width: 11vw;
-	height: 11vw;
+	height: 50px;
+	width: 50px;
 }
 
 .cellwhite {
@@ -127,8 +128,12 @@ td {
 	background-repeat: no-repeat;
 	background-position: bottom;
 	background-size: contain;
-	width: 11vw;
-	height: 11vw;
+	height: 50px;
+	width: 50px;
+}
+
+.full {
+	width: 100%;
 }
 
 button img {
@@ -203,14 +208,14 @@ a img {
 }
 
 html {
-	background: #dddddd;
+	background: white;
 	height: 100%;
 	font-family: Trebuchet MS, Helvetica, sans-serif;
 	font-size: 16px;
 }
 
 body, input, textarea {
-	background: #dddddd;
+	background: white;
 	color: black;
 }
 
@@ -231,8 +236,10 @@ input, textarea {
 }
 
 .sessioncell {
+	display: table-cell;
 	white-space: nowrap;
-	margin: 4px;
+	padding: 4px;
+	vertical-align: middle;
 }
 
 .header {
@@ -395,7 +402,21 @@ button {
 }
 
 .actionButton {
-	background-color: lightgreen
+	background-color: white;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 6px;
+	border-color: blue;
+	color: black;
+}
+
+.actionButton:hover {
+	background-color: blue;
+	color: white;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 6px;
+	border-color: white;
 }
 
 .hr

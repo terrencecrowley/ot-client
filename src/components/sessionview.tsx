@@ -62,65 +62,43 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 	render()
 		{
 			let user: any = this.props.sc.user;
-			let sessionColumns: any = [];
+			let sessionRows: any = [];
 			if (user.sessions && user.sessions.length > 0)
 			{
 				let sessionCells: any = [];
 				// Name
-				sessionCells.push(<div className='row sessioncell'><b>Name</b></div>);
+				sessionCells.push(<div className='sessioncell'><b>Name</b></div>);
+				sessionCells.push(<div className='sessioncell'><b>Type</b></div>);
+				sessionCells.push(<div className='sessioncell'><b>Active</b></div>);
+				sessionCells.push(<div className='sessioncell'>&nbsp;</div>);
+				sessionRows.push(<div className='tablerow'>{sessionCells}</div>);
 				for (let i: number = 0; i < user.sessions.length; i++)
 				{
 					let s: any = user.sessions[i];
-					sessionCells.push(<div className='row sessioncell'>{s.sessionName}</div>);
-				}
-				sessionColumns.push(<div className='column'>{sessionCells}</div>);
-
-				// Type
-				sessionCells = [];
-				sessionCells.push(<div className='row sessioncell'><b>Type</b></div>);
-				for (let i: number = 0; i < user.sessions.length; i++)
-				{
-					let s: any = user.sessions[i];
-					sessionCells.push(<div className='row sessioncell'>{s.sessionType}</div>);
-				}
-				sessionColumns.push(<div className='column'>{sessionCells}</div>);
-
-				// Active
-				sessionCells = [];
-				sessionCells.push(<div className='row sessioncell'><b>Active</b></div>);
-				for (let i: number = 0; i < user.sessions.length; i++)
-				{
-					let s: any = user.sessions[i];
-					sessionCells.push(<div className='row sessioncell'>{String(s.clientCount) + ' active'}</div>);
-				}
-				sessionColumns.push(<div className='column'>{sessionCells}</div>);
-
-				// Join
-				sessionCells = [];
-				sessionCells.push(<div className='row sessioncell'>&nbsp;</div>);
-				for (let i: number = 0; i < user.sessions.length; i++)
-				{
-					let s: any = user.sessions[i];
+					sessionCells = [];
+					sessionCells.push(<div className='sessioncell'>{s.sessionName}</div>);
+					sessionCells.push(<div className='sessioncell'>{s.sessionType}</div>);
+					sessionCells.push(<div className='sessioncell'>{String(s.clientCount) + ' active'}</div>);
 					sessionCells.push(
-						<div className='row sessioncell'>
+						<div className='sessioncell'>
 							<button className={'actionButton'} onClick={this.handleClick} id={s.sessionID}>
 								Join
 							</button>
 						</div>);
+					sessionRows.push(<div className='tablerow'>{sessionCells}</div>);
 				}
-				sessionColumns.push(<div className='column'>{sessionCells}</div>);
 			}
 			else
 			{
-				sessionColumns.push(<div>No Sessions</div>);
+				sessionRows.push(<div>No Sessions</div>);
 			}
 			return (
 					 <div>
 						<div>
 							Available Sessions:<br/><br/>
 						</div>
-						<div className='row'>
-							{sessionColumns}
+						<div className='table'>
+							{sessionRows}
 						</div>
 						<div>
 							<br/>

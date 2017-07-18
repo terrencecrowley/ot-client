@@ -195,7 +195,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 					let p: IP.InputProps = this.props.planControl.propsItemNew;
 					col.push(
 						<div className="item">
-							<IP.InputView bImg={p.bImg} bActive={p.bActive} bFocus={p.bFocus} val={p.val} valEdit={p.valEdit} update={p.update} done={p.done} />
+							<IP.InputView bImg={p.bImg} bActive={p.bActive} bFocus={p.bFocus} bFaded={p.bFaded} val={p.val} valEdit={p.valEdit} update={p.update} done={p.done} />
 						</div>
 						);
 				}
@@ -220,7 +220,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 			cols.push(
 				<div className="column items">
 					<div className="newbucket" onClick={this.handleNewBucket}>
-					<IP.InputView bImg={p.bImg} bFocus={p.bFocus} bActive={p.bActive} val={p.val} valEdit={p.valEdit} update={p.update} done={p.done} />
+					<IP.InputView bImg={p.bImg} bFocus={p.bFocus} bActive={p.bActive} bFaded={p.bFaded} val={p.val} valEdit={p.valEdit} update={p.update} done={p.done} />
 					</div>
 				</div>
 				);
@@ -285,7 +285,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 						</div>
 						<div className='row distinctblock'>
 							<div className='column'>
-								<IP.InputView bImg={pName.bImg} bFocus={pName.bFocus} bActive={pName.bActive} val={pName.val} valEdit={pName.valEdit} update={pName.update} done={pName.done} />
+								<IP.InputView bImg={pName.bImg} bFocus={pName.bFocus} bActive={pName.bActive} bFaded={pName.bFaded} val={pName.val} valEdit={pName.valEdit} update={pName.update} done={pName.done} />
 							</div>
 						</div>
 						<div className='row distinctblock'>
@@ -314,7 +314,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 									Start date
 								</div>
 								<div className='row'>
-									<IP.InputView bImg={pStart.bImg} bFocus={pStart.bFocus} bActive={pStart.bActive} val={pStart.val} valEdit={pStart.valEdit} update={pStart.update} done={pStart.done} />
+									<IP.InputView bImg={pStart.bImg} bFocus={pStart.bFocus} bActive={pStart.bActive} bFaded={pStart.bFaded} val={pStart.val} valEdit={pStart.valEdit} update={pStart.update} done={pStart.done} />
 								</div>
 							</div>
 							<div className='column'>
@@ -322,7 +322,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 									Due date
 								</div>
 								<div className='row'>
-									<IP.InputView bImg={pDue.bImg} bFocus={pDue.bFocus} bActive={pDue.bActive} val={pDue.val} valEdit={pDue.valEdit} update={pDue.update} done={pDue.done} />
+									<IP.InputView bImg={pDue.bImg} bFocus={pDue.bFocus} bActive={pDue.bActive} bFaded={pDue.bFaded} val={pDue.val} valEdit={pDue.valEdit} update={pDue.update} done={pDue.done} />
 								</div>
 							</div>
 						</div>
@@ -348,7 +348,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 									<input type='checkbox' checked={false} disabled={true} />
 									&nbsp;
 								</div>
-								<IP.InputView bImg={pCheck.bImg} bFocus={pCheck.bFocus} bActive={pCheck.bActive} val={pCheck.val} valEdit={pCheck.valEdit} update={pCheck.update} done={pCheck.done} />
+								<IP.InputView bImg={pCheck.bImg} bFocus={pCheck.bFocus} bActive={pCheck.bActive} bFaded={pCheck.bFaded} val={pCheck.val} valEdit={pCheck.valEdit} update={pCheck.update} done={pCheck.done} />
 							</div>
 						</div>
 						<div className='row distinctblock'>
