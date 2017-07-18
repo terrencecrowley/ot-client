@@ -1,17 +1,16 @@
-import * as $ from "jquery";
 import * as OT from "@terrencecrowley/ot-js";
 import * as CS from "./clientsession";
 import * as ClientActions from "./clientactions";
-import * as Query from "./query";
+import * as Menu from "./menu";
 
-export class QueryControl
+export class MenuControl
 {
 	context: OT.IExecutionContext;
 	clientSession: CS.ClientSession;
 	reRender: () => void;
 	actions: ClientActions.IClientActions;
 
-	props: Query.IQuery;; // query, yes, no, callback
+	props: Menu.IMenu;; // absx, absy, choices, callback
 
 	constructor(ctx: OT.IExecutionContext, cs: CS.ClientSession, reRender: () => void, actions: ClientActions.IClientActions)
 		{
@@ -20,10 +19,10 @@ export class QueryControl
 			this.reRender = reRender;
 			this.actions = actions;
 
-			this.props = Query.NullQuery;
+			this.props = Menu.NullMenu
 		}
 
-	query(props: Query.IQuery): void
+	menu(props: Menu.IMenu): void
 		{
 			this.props = props;
 			this.reRender();
@@ -31,15 +30,15 @@ export class QueryControl
 
 	doneEdits(ok: boolean): void
 		{
-			this.props = Query.NullQuery;
+			this.props = Menu.NullMenu;
 			this.reRender();
 		}
 
-	fire(result: boolean): void
+	fire(result: string): void
 		{
 			if (this.props.callback)
 				this.props.callback(result);
-			this.props = Query.NullQuery;
+			this.props = Menu.NullMenu;
 			this.reRender();
 		}
 }

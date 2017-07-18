@@ -54,6 +54,7 @@ export class PlanControl
 			this.updateComment = this.updateComment.bind(this);
 			this.updateCheckList = this.updateCheckList.bind(this);
 			this.addCheckList = this.addCheckList.bind(this);
+			this.deleteBucket = this.deleteBucket.bind(this);
 
 			this.propsBucketNew = { bImg: true, bFocus: true, bActive: false, val: '+ New Bucket', valEdit: '', update: this.updateBucket, done: this.doneBucket };
 			this.propsItemNew = { bImg: true, bFocus: true, bActive: false, val: '', valEdit: '', update: this.updateItem, done: this.doneItem };
@@ -96,6 +97,32 @@ export class PlanControl
 				let uid: string = Util.createGuid();
 				editBuckets.edits.push([ OT.OpMapSet, uid, bucketName ]);
 				editRoot.edits.push(editBuckets);
+				css.addLocal(editRoot);
+				css.tick();
+			}
+		}
+
+	deleteBucket(uid: string): void
+		{
+			let css: CS.ClientSessionState = this.clientSession.session;
+			if (css.clientEngine)
+			{
+				let editRoot = css.startLocalEdit();
+
+				// Delete the bucket
+				let editBuckets: OT.OTMapResource = new OT.OTMapResource(Plan.BucketsName);
+				editBuckets.edits.push([ OT.OpMapDel, uid, '' ]);
+				editRoot.edits.push(editBuckets);
+
+				// Delete the items bound to the bucket
+				let editItems: OT.OTMapResource = new OT.OTMapResource(Plan.ItemsName);
+				let aItems: Plan.IPlanItem[] = this.plan.getItemsOfBucket(uid);
+				for (let i: number = 0; i < aItems.length; i++)
+					editItems.edits.push([ OT.OpMapDel, aItems[i].uid, '' ]);
+				editRoot.edits.push(editItems);
+
+				// TODO: How to delete the higher level OT resources associated with the items?
+
 				css.addLocal(editRoot);
 				css.tick();
 			}

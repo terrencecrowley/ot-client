@@ -7,18 +7,29 @@
 
 <link href="./share.css" media="all" rel="stylesheet" type="text/css"/>
 <style>
-.blueblock {
-	wwidth: 50px;
-	hheight: 50px;
-	border-style: solid;
-	border-width: 2px;
-	border-color: blue;
-	padding: 4px;
+
+.gridblock {
+	width: 12vw;
+	height: 12vw;
 }
 
-.spread {
-	justify-content: space-between;
+.border {
+	border-style: solid;
+	border-width: 4px;
+	border-color: black;
+	width: 100%;
+	height: 100%;
 }
+
+.contentcell {
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	height: 100%;
+	width: 100%;
+}
+
+
 </style>
 
 
@@ -29,8 +40,30 @@
 <div id="root">
 
 <div>Some Text Above</div>
-<div class="row"> <div class=blueblock>B1</div> <div class=blueblock>B2</div> </div>
-<div class="column spread"> <div class=blueblock>B3</div> <div class=blueblock>B4</div> </div>
+<div class="row">
+
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+
+</div>
+<div class="row">
+
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+<div class="gridblock"><div class="border"><div class="contentcell BlackQueen"></div></div></div>
+
+</div>
 <div>Some Text Below</div>
 
 </div>

@@ -6,6 +6,7 @@ import { StatusView } from "./statusview";
 import { ChatView } from "./chatview";
 import { NameView } from "./nameview";
 import { QueryView } from "./queryview";
+import { MenuView } from "./menuview";
 import { ScratchView } from "./scratchview";
 import { SessionView } from "./sessionview";
 import { AgreeView } from "./agreeview";
@@ -17,6 +18,7 @@ import * as PlanControl from "../plancontrol";
 import * as ChatControl from "../chatcontrol";
 import * as NameControl from "../namecontrol";
 import * as QueryControl from "../querycontrol";
+import * as MenuControl from "../menucontrol";
 import * as ScratchControl from "../scratchcontrol";
 import * as AgreeControl from "../agreecontrol";
 
@@ -30,6 +32,7 @@ export interface AppProps {
 		chatControl: ChatControl.ChatControl,
 		nameControl: NameControl.NameControl,
 		queryControl: QueryControl.QueryControl,
+		menuControl: MenuControl.MenuControl,
 		chessControl: ChessControl.ChessControl,
 		planControl: PlanControl.PlanControl,
 		scratchControl: ScratchControl.ScratchControl,
@@ -73,6 +76,7 @@ export class ReactApp extends React.Component<AppProps, {}> {
 			return (
 				<div className="wrapper">
 					<QueryView queryControl={this.props.queryControl} />
+					<MenuView menuControl={this.props.menuControl} />
 					<div className="header">
 					{cmpNav}
 					{cmpName}

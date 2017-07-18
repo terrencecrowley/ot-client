@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as Query from "../agree";
+import * as Query from "../query";
 import * as QueryControl from "../querycontrol";
 
 export interface QueryProps {
@@ -27,7 +27,7 @@ export class QueryView extends React.Component<QueryProps, QueryState> {
 
 	render()
 		{
-			let p: any = this.props.queryControl.props;
+			let p: Query.IQuery = this.props.queryControl.props;
 			if (p.query)
 			{
 				let sYes: string = p.yes ? p.yes : "Yes";

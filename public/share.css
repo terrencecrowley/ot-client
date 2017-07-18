@@ -46,16 +46,39 @@ td {
 }
 
 .query {
+	position: absolute;
+	left: 12%;
+	top: 20%;
+	width: 75%;
 	border-style: solid;
 	border-width: 4px;
 	border-color: black;
 	padding: 10px;
 	background-color: white;
 	color: black;
-	width: 75%;
+}
+
+.menu {
 	position: absolute;
-	left: 12%;
-	top: 20%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	background-color: white;
+	color: black;
+	cursor: pointer;
+}
+
+.menuchoice {
+	cursor: pointer;
+}
+
+.menuchoice:hover {
+	background-color: grey;
+	cursor: pointer;
+}
+
+.menutarget {
+	cursor: pointer;
 }
 
 .popupprops {
@@ -83,14 +106,29 @@ td {
 	border-color: green;
 }
 
-.onCell, .blackCell {
+.cellborder {
+	padding: 4px;
+}
+
+.cellgrid {
+}
+
+.cellblack {
 	background-color: #333333;
-	flex-grow: 1;
-	width: 100%;
-	text-align: center;
 	background-repeat: no-repeat;
 	background-position: bottom;
 	background-size: contain;
+	width: 11vw;
+	height: 11vw;
+}
+
+.cellwhite {
+	background-color: #cccccc;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: contain;
+	width: 11vw;
+	height: 11vw;
 }
 
 button img {
@@ -99,16 +137,6 @@ button img {
 
 .floating {
 	float: left;
-}
-
-.offCell, .whiteCell {
-	background-color: #cccccc;
-	flex-grow: 1;
-	width: 100%;
-	text-align: center;
-	background-repeat: no-repeat;
-	background-position: bottom;
-	background-size: contain;
 }
 
 .agreeCell {
@@ -152,21 +180,6 @@ button img {
 .agreeCorner {
 	background-color: #BCBFEF;
 	cursor: default;
-}
-
-.pieceTable {
-	text-align: center;
-	vertical-align: middle;
-	width: 100%;
-	height: 100%;
-}
-
-.blackPiece {
-	color: black;
-}
-
-.whitePiece {
-	color: white;
 }
 
 .table {
@@ -232,8 +245,11 @@ input, textarea {
 	display: flex;
 	flex-direction: row;
 	align-items: stretch;
-	flex-grow: 1;
 	width: 100%;
+}
+
+.stretchchild {
+	flex: 1;
 }
 
 .column {
@@ -252,7 +268,7 @@ input, textarea {
 }
 
 .faded {
-	color: lightgrey;
+	color: grey;
 }
 
 .deleted {
@@ -430,6 +446,7 @@ button {
 	margin-top: 4px;
 	margin-bottom: 4px;
 	min-width: 150px;
+	cursor: pointer;
 }
 .buckethead
 {
@@ -469,6 +486,7 @@ button {
 	border-color: black;
 	margin-top: 4px;
 	margin-bottom: 4px;
+	cursor: pointer;
 }
 .items
 {

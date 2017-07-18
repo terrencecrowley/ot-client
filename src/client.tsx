@@ -10,6 +10,7 @@ import * as AgreeControl from "./agreecontrol";
 import * as ChatControl from "./chatcontrol";
 import * as NameControl from "./namecontrol";
 import * as QueryControl from "./querycontrol";
+import * as MenuControl from "./menucontrol";
 import * as ChessControl from "./chesscontrol";
 import * as PlanControl from "./plancontrol";
 import * as StatusControl from "./statuscontrol";
@@ -85,6 +86,10 @@ class Actions implements ClientActions.IClientActions
 					this.app.actionQuery(arg);
 					break;
 
+				case ClientActions.Menu:
+					this.app.actionMenu(arg);
+					break;
+
 				case ClientActions.DoneEdits:
 					this.app.actionDone(arg as boolean);
 					break;
@@ -106,6 +111,7 @@ class App
 	chessControl: ChessControl.ChessControl;
 	planControl: PlanControl.PlanControl;
 	queryControl: QueryControl.QueryControl;
+	menuControl: MenuControl.MenuControl;
 
 	// For rendering
 	bRender: boolean;
@@ -129,6 +135,7 @@ class App
 			this.chatControl = new ChatControl.ChatControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.nameControl = new NameControl.NameControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.queryControl = new QueryControl.QueryControl(this.context, this.clientSession, this.forceRender, this.actions);
+			this.menuControl = new MenuControl.MenuControl(this.context, this.clientSession, this.forceRender, this.actions);
 
 			this.sessionControl = new SessionC.SessionControl(this.context, this.clientSession, this.forceRender, this.actions);
 			this.scratchControl = new ScratchControl.ScratchControl(this.context, this.clientSession, this.forceRender, this.actions);
@@ -141,7 +148,7 @@ class App
 		{
 			if (this.bRender)
 			{
-				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} chatControl={this.chatControl} chessControl={this.chessControl} planControl={this.planControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
+				ReactDOM.render(<ReactApp mode={this.mode()} name={this.clientSession.user.name} url={this.urlForJoin} status={this.statusControl.status} actions={this.actions} sessionControl={this.sessionControl} nameControl={this.nameControl} queryControl={this.queryControl} menuControl={this.menuControl} chatControl={this.chatControl} chessControl={this.chessControl} planControl={this.planControl} scratchControl={this.scratchControl} agreeControl={this.agreeControl}/>,
 					document.getElementById("root"));
 				this.bRender = false;
 				if ($('#autofocus'))
@@ -234,6 +241,11 @@ class App
 			this.queryControl.query(props);
 		}
 
+	actionMenu(props: any): void
+		{
+			this.menuControl.menu(props);
+		}
+
 	actionDone(ok: boolean): void
 		{
 			this.statusControl.doneEdits(ok);
@@ -245,6 +257,7 @@ class App
 			this.chessControl.doneEdits(ok);
 			this.planControl.doneEdits(ok);
 			this.queryControl.doneEdits(ok);
+			this.menuControl.doneEdits(ok);
 		}
 
 	tick(): void

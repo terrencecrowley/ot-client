@@ -2,6 +2,8 @@ import * as React from "react";
 import * as Plan from "../plan";
 import * as PlanControl from "../plancontrol";
 import * as IP from "./inputview";
+import * as Menu from "../menu";
+import * as ClientActions from "../clientactions";
 
 export interface PlanProps {
 	planControl: PlanControl.PlanControl
@@ -29,6 +31,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 			this.handleCheckList = this.handleCheckList.bind(this);
 			this.handleShowCheck = this.handleShowCheck.bind(this);
 			this.handleStartCheckItem = this.handleStartCheckItem.bind(this);
+			this.handleBucketMenu = this.handleBucketMenu.bind(this);
 		}
 
 	handleNewBucket(e: any): boolean
@@ -140,6 +143,22 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 			return false;
 		}
 
+	handleBucketMenu(e: any): boolean
+		{
+			let menuprops: Menu.IMenu = Menu.createEmpty();
+			menuprops.absx = e.clientX;
+			menuprops.absy = e.clientY;
+			let planControl = this.props.planControl;
+			menuprops.callback = (result: string) => { if (result != '') planControl.deleteBucket(result); }
+			menuprops.choices = [ [ '', 'Rename' ], [ e.target.id, 'Delete' ] ];
+
+			this.props.planControl.actions.fire(ClientActions.Menu, menuprops);
+
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
 	componentDidUpdate(oldProps: PlanProps, oldState: PlanState): void
 		{
 		}
@@ -156,7 +175,13 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 				let bucketName: string = plan.getBucketName(uidBucket);
 				let col: any[] = [];
 				col.push(
-					<div className="buckethead">{bucketName}</div>
+					<div className="buckethead">
+						<div className="row spread">
+							<span>&nbsp;</span>
+							<span>{bucketName}</span>
+							<span className='menutarget' id={uidBucket} onClick={this.handleBucketMenu}>...</span>
+						</div>
+					</div>
 					);
 				col.push(
 					<div className="hr"></div>

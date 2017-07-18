@@ -176,16 +176,28 @@ export class Plan
 					if (item)
 					{
 						let aItems: IPlanItem[] = mBuckets[item.bucket];
-						if (! aItems) // shouldn't really happen because of prior initialization step
-						{
-							aItems = [];
-							mBuckets[item.bucket] = aItems;
-						}
-						aItems.push(item);
+						if (aItems !== undefined)
+							aItems.push(item);
+						// otherwise orphaned item which can occur if one user deletes a bucket while another is creating an item
 					}
 				}
 			}
 			return mBuckets;
+		}
+
+	getItemsOfBucket(uid: string): IPlanItem[]
+		{
+			let aItems: IPlanItem[] = [];
+
+			let mItems: any = this.value[ItemsName];
+			for (let p in mItems) if (mItems.hasOwnProperty(p))
+			{
+				let item: IPlanItem = this.value[p] as IPlanItem;
+				if (item && item.bucket == uid)
+					aItems.push(item);
+			}
+
+			return aItems;
 		}
 
 	getBucketName(uid: string): string
