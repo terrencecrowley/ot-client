@@ -1,7 +1,6 @@
 {
 	"files": [
 		"src/client.tsx",
-		"src/clientsession.ts",
 		"src/clientactions.ts",
 		"src/chess.ts",
 		"src/plan.ts",

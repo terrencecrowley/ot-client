@@ -356,7 +356,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 								<br/>
 								Description
 								<br/>
-								<textarea onChange={this.handleChangeDescription} value={item.description} />
+								<div><textarea onChange={this.handleChangeDescription} value={item.description} /></div>
 							</div>
 						</div>
 						<div className='row distinctblock'>
@@ -366,7 +366,7 @@ export class PlanView extends React.Component<PlanProps, PlanState> {
 										<br/>
 										Comments
 										<br/>
-										<textarea onChange={this.handleChangeComment} value={pComment.valEdit} />
+										<div><textarea onChange={this.handleChangeComment} value={pComment.valEdit} /></div>
 										<br/>
 									</div>
 								</div>

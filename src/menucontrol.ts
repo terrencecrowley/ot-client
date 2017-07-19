@@ -1,5 +1,5 @@
 import * as OT from "@terrencecrowley/ot-js";
-import * as CS from "./clientsession";
+import * as CS from "@terrencecrowley/ot-clientsession";
 import * as ClientActions from "./clientactions";
 import * as Menu from "./menu";
 

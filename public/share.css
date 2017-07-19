@@ -93,6 +93,7 @@ td {
 	left: 12%;
 	top: 20%;
 }
+.popupprops textarea { height: 3em; width: 100%; }
 
 .selected {
 	border-style: solid;
@@ -115,7 +116,7 @@ td {
 }
 
 .cellblack {
-	background-color: #333333;
+	background-color: #777777;
 	background-repeat: no-repeat;
 	background-position: bottom;
 	background-size: contain;

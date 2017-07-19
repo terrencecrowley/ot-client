@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/terrencecrowley/js-share#readme",
   "dependencies": {
+    "@terrencecrowley/ot-clientsession": "^1.0.0",
     "@terrencecrowley/ot-editutil": "^1.0.0",
     "@terrencecrowley/ot-js": "^1.0.1"
   },

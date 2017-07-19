@@ -15,7 +15,7 @@ import * as ChessControl from "./chesscontrol";
 import * as PlanControl from "./plancontrol";
 import * as StatusControl from "./statuscontrol";
 import * as SessionC from "./sessioncontrol";
-import * as CS from "./clientsession";
+import * as CS from "@terrencecrowley/ot-clientsession";
 import * as ClientActions from "./clientactions";
 import { ReactApp } from "./components/app";
 
