@@ -38,8 +38,8 @@ export class PlanControl
 			this.actions = actions;
 
 			this.plan = new Plan.Plan();
-			this.notifyPlanChange = this.notifyPlanChange.bind(this);
-			cs.onState(this.notifyPlanChange);
+			this.handleState = this.handleState.bind(this);
+			cs.on('state', this.handleState);
 
 			this.itemEdit = null;
 
@@ -74,13 +74,13 @@ export class PlanControl
 			this.reRender();
 		}
 
-	notifyPlanChange(cs: CS.ClientSession, planData: any): void
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState): void
 		{
-			if (planData === undefined)
+			if (css == null || css.state == null)
 				this.reset();
 			else
 			{
-				this.plan.value = planData;
+				this.plan.value = css.state;
 				if (this.itemEdit)
 					this.itemEdit = this.plan.getItemByUID(this.itemEdit.uid);
 				this.reRender();

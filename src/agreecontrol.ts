@@ -35,18 +35,9 @@ export class AgreeControl
 			this.agree = new Agree.Agree();
 
 			this.assureLocalUser = this.assureLocalUser.bind(this);
-			cs.onJoin('root', this.assureLocalUser);
-
-			this.notifyChangeMeta = this.notifyChangeMeta.bind(this);
-			cs.onData(CS.MetaResource, this.notifyChangeMeta);
-			this.notifyChangeUsers = this.notifyChangeUsers.bind(this);
-			cs.onData('users', this.notifyChangeUsers);
-			this.notifyChangeChoices = this.notifyChangeChoices.bind(this);
-			cs.onData('choices', this.notifyChangeChoices);
-			this.notifyChangeSelects = this.notifyChangeSelects.bind(this);
-			cs.onData('selects', this.notifyChangeSelects);
-			this.notifyUserChange = this.notifyUserChange.bind(this);
-			cs.onData('WellKnownName_users', this.notifyUserChange);
+			cs.on('join', this.assureLocalUser);
+			this.handleState = this.handleState.bind(this);
+			cs.on('state', this.handleState);
 
 			this.notifyLocal_setName = this.notifyLocal_setName.bind(this);
 			this.notifyLocal_setType = this.notifyLocal_setType.bind(this);
@@ -70,48 +61,23 @@ export class AgreeControl
 			this.reRender();
 		}
 
-	notifyChangeMeta(cs: CS.ClientSession, state: any)
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState): void
 		{
-			if (state === undefined)
+			if (css == null || css.state == null)
 				this.reset();
 			else
-				this.agree.meta = state;
-			this.reRender();
-		}
-
-	notifyChangeUsers(cs: CS.ClientSession, state: any)
-		{
-			if (state === undefined)
-				this.reset();
-			else
-				this.agree.users = state;
-			this.reRender();
-		}
-
-	notifyChangeChoices(cs: CS.ClientSession, state: any)
-		{
-			if (state === undefined)
-				this.reset();
-			else
-				this.agree.choices = state as Agree.SyncChoice[];
-			this.reRender();
-		}
-
-	notifyChangeSelects(cs: CS.ClientSession, state: any)
-		{
-			if (state === undefined)
-				this.reset();
-			else
-				this.agree.selects = state;
-			this.reRender();
-		}
-
-	notifyUserChange(cs: CS.ClientSession, userMap: any)
-		{
-			if (userMap === undefined)
-				this.reset();
-			else
-				this.userMap = userMap;
+			{
+				if (css.state[CS.MetaResource])
+					this.agree.meta = css.state[CS.MetaResource];
+				if (css.state['users'])
+					this.agree.users = css.state['users'];
+				if (css.state['WellKnownName_users'])
+					this.userMap = css.state['WellKnownName_users'];
+				if (css.state['choices'])
+					this.agree.choices = css.state['choices'] as Agree.SyncChoice[];
+				if (css.state['selects'])
+					this.agree.selects = css.state['selects'];
+			}
 			this.reRender();
 		}
 
@@ -169,13 +135,12 @@ export class AgreeControl
 			else
 			{
 				this.notifyLocal_deleteProp('users', sid);
-				this.assureLocalUser();
+				this.assureLocalUser(this.clientSession);
 			}
 		}
 
-	assureLocalUser(): void
+	assureLocalUser(cs: CS.ClientSession): void
 		{
-			let cs: CS.ClientSession = this.clientSession;
 			if (cs.bInSession && cs.userID != '')
 			{
 				let meSID: string = cs.userID;

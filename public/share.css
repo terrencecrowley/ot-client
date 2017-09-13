@@ -70,11 +70,11 @@ td {
 
 .menuchoice {
 	cursor: pointer;
+	padding: 4px;
 }
 
 .menuchoice:hover {
 	background-color: grey;
-	cursor: pointer;
 }
 
 .menutarget {
@@ -413,11 +413,8 @@ button {
 
 .actionButton:hover {
 	background-color: blue;
-	color: white;
-	border-style: solid;
-	border-width: 1px;
-	border-radius: 6px;
 	border-color: white;
+	color: white;
 }
 
 .hr
@@ -429,7 +426,7 @@ button {
 	border-color: black;
 }
 
-.item:hover
+.item
 {
 	background-color: white;
 	padding: 8px;
@@ -439,15 +436,9 @@ button {
 	margin-top: 4px;
 	margin-bottom: 4px;
 }
-.item
+.item:hover
 {
-	background-color: white;
-	padding: 8px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: white;
-	margin-top: 4px;
-	margin-bottom: 4px;
+	border-color: blue;
 }
 .newitem
 {
@@ -462,12 +453,7 @@ button {
 .newitem:hover
 {
 	background-color: LightCyan;
-	padding: 8px;
 	color: black;
-	text-align: center;
-	margin-top: 4px;
-	margin-bottom: 4px;
-	min-width: 150px;
 	cursor: pointer;
 }
 .buckethead
@@ -482,13 +468,7 @@ button {
 }
 .buckethead:hover
 {
-	padding: 8px;
-	text-align: center;
-	border-style: solid;
-	border-width: 1px;
 	border-color: black;
-	margin-top: 4px;
-	margin-bottom: 4px;
 }
 .newbucket
 {
@@ -502,12 +482,7 @@ button {
 .newbucket:hover
 {
 	background-color: LightCyan;
-	padding: 8px;
-	border-style: solid;
-	border-width: 1px;
 	border-color: black;
-	margin-top: 4px;
-	margin-bottom: 4px;
 	cursor: pointer;
 }
 .items

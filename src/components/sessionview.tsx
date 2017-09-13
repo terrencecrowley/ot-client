@@ -12,16 +12,25 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 	constructor(props: any)
 		{
 			super(props);
-			this.handleClick = this.handleClick.bind(this);
+			this.handleClickJoin = this.handleClickJoin.bind(this);
+			this.handleClickLeave = this.handleClickLeave.bind(this);
 			this.handleClickNewScratch = this.handleClickNewScratch.bind(this);
 			this.handleClickNewChess = this.handleClickNewChess.bind(this);
 			this.handleClickNewPlan = this.handleClickNewPlan.bind(this);
 			this.handleClickNewAgree = this.handleClickNewAgree.bind(this);
 		}
 
-	handleClick(e: any): boolean
+	handleClickJoin(e: any): boolean
 		{
 			this.props.sc.actions.fire(ClientActions.JoinSession, e.currentTarget.id);
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+
+	handleClickLeave(e: any): boolean
+		{
+			this.props.sc.actions.fire(ClientActions.LeaveSession, e.currentTarget.id);
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -81,8 +90,12 @@ export class SessionView extends React.Component<SessionProps, SessionState> {
 					sessionCells.push(<div className='sessioncell'>{String(s.clientCount) + ' active'}</div>);
 					sessionCells.push(
 						<div className='sessioncell'>
-							<button className={'actionButton'} onClick={this.handleClick} id={s.sessionID}>
+							<button className={'actionButton'} onClick={this.handleClickJoin} id={s.sessionID}>
 								Join
+							</button>
+							&nbsp;
+							<button className={'actionButton'} onClick={this.handleClickLeave} id={s.sessionID}>
+								Leave
 							</button>
 						</div>);
 					sessionRows.push(<div className='tablerow'>{sessionCells}</div>);

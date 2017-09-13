@@ -44,12 +44,12 @@ export class ScratchControl
 		this.selectionEnd = 0;
 		this.elTextArea = null;
 		this.captureElementCB = this.captureElementCB.bind(this);
-		this.notifyData = this.notifyData.bind(this);
+		this.handleState = this.handleState.bind(this);
 		this.notifyLocalChange = this.notifyLocalChange.bind(this);
-		this.notifyJoin = this.notifyJoin.bind(this);
+		this.handleJoin = this.handleJoin.bind(this);
 		this.clientSession = cs;
-		cs.onData('text', this.notifyData);
-		cs.onJoin('text', this.notifyJoin);
+		cs.on('state', this.handleState);
+		cs.on('join', this.handleJoin);
 		this.editUtil = null;
 	}
 
@@ -64,17 +64,17 @@ export class ScratchControl
 		{
 		}
 
-	notifyData(cs: CS.ClientSession, a: any): void
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState): void
 		{
-			if (a === undefined)
+			if (css == null || css.state == null || css.state['text'] == null)
 				this.reset();
 			else
 			{
-				let s: string = a as string;
+				let s: string = css.state['text'] as string;
 				if (s)
 				{
-					let cursor: any = this.editUtil.extractCursor(cs.session.clientEngine.stateLocal);
-					cursor = cursor ? cursor[cs.clientID] : undefined;
+					let cursor: any = this.editUtil.extractCursor(css.clientEngine.stateLocal);
+					cursor = cursor ? cursor[cs.session.clientID] : undefined;
 					let ss: number = cursor && cursor.selectionStart ? cursor.selectionStart : undefined;
 					let se: number = cursor && cursor.selectionEnd ? cursor.selectionEnd : ss;
 					this.setTextValue(s, ss, se);
@@ -82,10 +82,10 @@ export class ScratchControl
 			}
 		}
 
-	notifyJoin(cs: CS.ClientSession): void
+	handleJoin(cs: CS.ClientSession, css: CS.ClientSessionState): void
 		{
-			if (cs.session.clientEngine)
-				this.editUtil = new OTE.OTEditUtil(this.context, cs.session.sessionID, cs.clientID, 'text');
+			if (css && css.clientEngine)
+				this.editUtil = new OTE.OTEditUtil(this.context, css.sessionID, css.clientID, 'text');
 			else
 				this.editUtil = null;
 		}

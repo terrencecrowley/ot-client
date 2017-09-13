@@ -82,6 +82,10 @@ class Actions implements ClientActions.IClientActions
 					this.app.actionJoinSession(arg as string);
 					break;
 
+				case ClientActions.LeaveSession:
+					this.app.actionLeaveSession(arg as string);
+					break;
+
 				case ClientActions.Query:
 					this.app.actionQuery(arg);
 					break;
@@ -92,6 +96,10 @@ class Actions implements ClientActions.IClientActions
 
 				case ClientActions.DoneEdits:
 					this.app.actionDone(arg as boolean);
+					break;
+
+				case ClientActions.Logout:
+					this.app.actionLogout();
 					break;
 			}
 		}
@@ -168,7 +176,7 @@ class App
 	get urlForJoin(): string
 		{
 			let s: string = '';
-			if (this.clientSession.session.sessionID != '')
+			if (this.clientSession.session && this.clientSession.session.sessionID != '')
 			{
 				s = document.location.protocol + '//' + document.location.hostname;
 				if (document.location.port)
@@ -196,7 +204,7 @@ class App
 
 	mode(): string
 		{
-			if (this.clientSession.session.getType())
+			if (this.clientSession.session && this.clientSession.session.getType())
 				return this.clientSession.session.getType();
 			return '';
 		}
@@ -236,6 +244,11 @@ class App
 			this.clientSession.setSession(sid);
 		}
 
+	actionLeaveSession(sid: string): void
+		{
+			this.clientSession.leaveSession(sid);
+		}
+
 	actionQuery(props: any): void
 		{
 			this.queryControl.query(props);
@@ -260,10 +273,20 @@ class App
 			this.menuControl.doneEdits(ok);
 		}
 
+	actionLogout(): void
+		{
+			window.location.replace("/logout");
+		}
+
 	tick(): void
 		{
-			this.clientSession.tick();
-			this.reTick();
+			if (this.clientSession.bAuthorized)
+			{
+				this.clientSession.tick();
+				this.reTick();
+			}
+			else
+				this.actionLogout();
 		}
 };
 

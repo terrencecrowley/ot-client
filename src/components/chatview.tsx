@@ -45,7 +45,7 @@ export class ChatView extends React.Component<ChatProps, ChatState> {
 
 	render()
 		{
-			let whoMe: string = this.props.cc.clientSession.clientID;
+			let whoMe: string = this.props.cc.clientSession.session.clientID;
 			let whoMap: any = this.props.cc.userMap;
 			const chatHistory = this.props.cc.chatArray.map((chatEntry: any, i: number) => {
 				let sWho: string = whoMap[chatEntry[0]];

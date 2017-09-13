@@ -17,8 +17,8 @@ export class SessionControl
 			this.clientSession = cs;
 			this.reRender = reRender;
 			this.actions = actions;
-			this.notifyStatusChange = this.notifyStatusChange.bind(this);
-			cs.onStatusChange(this.notifyStatusChange);
+			this.handleStatus = this.handleStatus.bind(this);
+			cs.on('status', this.handleStatus);
 			this.user = cs.user;
 		}
 
@@ -26,7 +26,7 @@ export class SessionControl
 		{
 		}
 
-	notifyStatusChange(cs: CS.ClientSession)
+	handleStatus(cs: CS.ClientSession)
 		{
 			this.user = cs.user;
 			this.reRender();

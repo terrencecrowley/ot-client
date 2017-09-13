@@ -17,18 +17,18 @@ export class StatusControl
 			this.clientSession = cs;
 			this.reRender = reRender;
 			this.userMap = {};
-			this.notifyJoin = this.notifyJoin.bind(this);
-			this.notifyUserChange = this.notifyUserChange.bind(this);
-			cs.onStatusChange(this.notifyJoin);
-			cs.onJoin('WellKnownName_root', this.notifyJoin);
-			cs.onData('WellKnownName_users', this.notifyUserChange);
+			this.handleJoin = this.handleJoin.bind(this);
+			this.handleState = this.handleState.bind(this);
+			cs.on('status', this.handleJoin);
+			cs.on('join', this.handleJoin);
+			cs.on('state', this.handleState);
 		}
 
 	doneEdits(ok: boolean): void
 		{
 		}
 
-	notifyJoin(cs: CS.ClientSession)
+	handleJoin(cs: CS.ClientSession)
 		{
 			let newStatus: string;
 			if (! cs.bConnected)
@@ -40,7 +40,7 @@ export class StatusControl
 					let nAnon: number = 0;
 					let nOther: number = 0;
 					for (var cid in this.userMap)
-						if (this.userMap.hasOwnProperty(cid) && cid != cs.clientID)
+						if (this.userMap.hasOwnProperty(cid) && cid != cs.session.clientID)
 						{
 							nOther++;
 							if (this.userMap[cid] == '')
@@ -57,7 +57,7 @@ export class StatusControl
 							let nNames: number = nOther - nAnon;
 							let sFinalCombiner: string = nAnon == 0 ? ' and ' : ', ';
 							for (var cid in this.userMap)
-								if (this.userMap.hasOwnProperty(cid) && cid != cs.clientID && this.userMap[cid] != '')
+								if (this.userMap.hasOwnProperty(cid) && cid != cs.session.clientID && this.userMap[cid] != '')
 								{
 									statusBuild.push(this.userMap[cid]);
 									nNames--;
@@ -77,7 +77,7 @@ export class StatusControl
 				else
 					newStatus = "Session unavailable.";
 			}
-			else if (cs.session.bFull)
+			else if (cs.session && cs.session.bFull)
 				newStatus = "Session full, please wait.";
 			else if (cs.bPendingConnection)
 				newStatus = "Connecting to session...";
@@ -92,12 +92,13 @@ export class StatusControl
 			}
 		}
 
-	notifyUserChange(cs: CS.ClientSession, userMap: any)
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState)
 		{
-			if (userMap === undefined)
-				this.userMap = {};
+			if (css && css.state)
+				this.userMap = css.state['WellKnownName_users'];
 			else
-				this.userMap = userMap;
-			this.notifyJoin(cs);
+				this.userMap = {};
+
+			this.handleJoin(cs);
 		}
 }

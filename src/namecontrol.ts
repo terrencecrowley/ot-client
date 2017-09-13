@@ -23,8 +23,8 @@ export class NameControl
 			this.actions = actions;
 
 			this.name = '';
-			this.notifyData = this.notifyData.bind(this);
-			cs.onData(CS.MetaResource, this.notifyData);
+			this.handleState = this.handleState.bind(this);
+			cs.on('state', this.handleState);
 			this.notifyLocalChange = this.notifyLocalChange.bind(this);
 			this.updateName = this.updateName.bind(this);
 			this.doneName = this.doneName.bind(this);
@@ -39,13 +39,13 @@ export class NameControl
 			this.reRender();
 		}
 
-	notifyData(cs: CS.ClientSession, meta: any)
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState)
 		{
-			if (meta === undefined)
+			if (css == null || css.state == null)
 				this.reset();
 			else
 			{
-				this.name = cs.session.getName();
+				this.name = css.getName();
 				if (this.name === undefined)
 					this.name = '';
 				this.propsName.val = this.name == '' ? 'Name' : this.name;

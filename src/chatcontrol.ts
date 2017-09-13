@@ -26,11 +26,9 @@ export class ChatControl
 			this.userMap = {};
 			this.bChatOn = false;
 			this.nChatSeen = 0;
-			this.notifyChatChange = this.notifyChatChange.bind(this);
-			this.notifyUserChange = this.notifyUserChange.bind(this);
+			this.handleState = this.handleState.bind(this);
+			cs.on('state', this.handleState);
 			this.notifyLocalChange = this.notifyLocalChange.bind(this);
-			cs.onData('chat', this.notifyChatChange);
-			cs.onData('WellKnownName_users', this.notifyUserChange);
 		}
 
 	get chatDisabled(): boolean
@@ -71,25 +69,17 @@ export class ChatControl
 			}
 		}
 
-	notifyChatChange(cs: CS.ClientSession, chatArray: any)
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState)
 		{
-			if (chatArray === undefined)
+			if (css == null || css.state == null || css.state['chat'] == null)
 				this.reset();
 			else
 			{
-				this.chatArray = chatArray;
+				this.chatArray = css.state['chat'];
 				if (this.bChatOn)
 					this.nChatSeen = this.chatArray.length;
+				this.userMap = css.state['WellKnownName_users'];
 			}
-			this.reRender();
-		}
-
-	notifyUserChange(cs: CS.ClientSession, userMap: any)
-		{
-			if (userMap === undefined)
-				this.reset();
-			else
-				this.userMap = userMap;
 			this.reRender();
 		}
 
@@ -105,7 +95,7 @@ export class ChatControl
 				let editRoot: OT.OTCompositeResource = css.startLocalEdit();
 				let editChat: OT.OTArrayResource = new OT.OTArrayResource('chat');
 				editChat.edits.push([ OT.OpRetain, this.chatArray.length, [ [ ] ] ]);
-				editChat.edits.push([ OT.OpInsert, 1, [ [ this.clientSession.clientID, s ] ] ]);
+				editChat.edits.push([ OT.OpInsert, 1, [ [ css.clientID, s ] ] ]);
 				editRoot.edits.push(editChat);
 				css.addLocal(editRoot);
 				this.reRender();

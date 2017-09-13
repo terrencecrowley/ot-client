@@ -23,8 +23,8 @@ export class ChessControl
 
 			this.chess = new Chess.Chess();
 			this.moves = [];
-			this.notifyBoardChange = this.notifyBoardChange.bind(this);
-			cs.onData('chess', this.notifyBoardChange);
+			this.handleState = this.handleState.bind(this);
+			cs.on('state', this.handleState);
 		}
 
 	navText(): string
@@ -45,13 +45,13 @@ export class ChessControl
 		{
 		}
 
-	notifyBoardChange(cs: CS.ClientSession, moves: any)
+	handleState(cs: CS.ClientSession, css: CS.ClientSessionState)
 		{
-			if (moves === undefined)
+			if (css == null || css.state == null || css.state['chess'] == null)
 				this.reset();
 			else
 			{
-				this.moves = moves;
+				this.moves = css.state['chess'];
 				this.syncMoves();
 			}
 		}
