@@ -1,17 +1,17 @@
 {
-  "name": "js-share",
+  "name": "ot-client",
   "version": "1.0.0",
   "description": "OT over a variety of application models",
-  "main": "./server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server",
+    "start": "echo \"Error: start is implemented by ot-server\" && exit 1"
     "build": "webpack",
     "webpack": "node_modules/.bin/webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terrencecrowley/js-share.git"
+    "url": "git+https://github.com/terrencecrowley/ot-client.git"
   },
   "keywords": [
     "Node"
@@ -19,9 +19,9 @@
   "author": "Terry Crowley",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/terrencecrowley/js-share/issues"
+    "url": "https://github.com/terrencecrowley/ot-client/issues"
   },
-  "homepage": "https://github.com/terrencecrowley/js-share#readme",
+  "homepage": "https://github.com/terrencecrowley/ot-client#readme",
   "dependencies": {
     "@terrencecrowley/ot-clientsession": "^1.0.0",
     "@terrencecrowley/ot-editutil": "^1.0.0",
