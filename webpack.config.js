@@ -17,7 +17,7 @@ var clientConfig = {
 	entry: './src/client.tsx',
 	target: 'web',
 	output: {
-		path: './clientdist',
+		path: __dirname + '/clientdist',
 		filename: 'shareclient.bundle.js'
 	},
 
@@ -31,17 +31,14 @@ var clientConfig = {
 	devtool: "source-map",
 
 	resolve: {
-		extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+		extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
 	},
 
 	module: {
-		loaders: [
+		rules: [
 			{ test: /\.tsx?$/, loader: 'ts-loader' },
-			{ test: /\.json$/, loader: 'json-loader' }
-		],
-
-		preLoaders: [
-			{ test: /\.js$/, loader: "source-map-loader" }
+			{ test: /\.json$/, loader: 'json-loader' },
+			{ test: /\.js$/, enforce: "pre", loader: "source-map-loader" }
 		]
 	}
 };

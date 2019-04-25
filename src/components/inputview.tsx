@@ -28,10 +28,7 @@ export class InputView extends React.Component<InputProps, InputState> {
 	handleTextChange(event: any): void
 		{
 			if (this.props.bActive)
-			{
-				this.props.valEdit = event.target.value;
 				this.props.update(event.target.value);
-			}
 		}
 
 	handleTextReturn(event?: any): void
@@ -40,7 +37,6 @@ export class InputView extends React.Component<InputProps, InputState> {
 			{
 				if (this.props.bActive)
 				{
-					let val: string = (event === undefined) ? this.props.valEdit : event.target.value;
 					if (this.props.done)
 						this.props.done(true);
 				}

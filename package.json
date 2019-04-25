@@ -4,7 +4,7 @@
   "description": "OT over a variety of application models",
   "main": "server.js",
   "scripts": {
-    "start": "echo \"Error: start is implemented by ot-server\" && exit 1"
+    "start": "echo \"Error: start is implemented by ot-server\" && exit 1",
     "build": "webpack",
     "webpack": "node_modules/.bin/webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,13 +28,13 @@
     "@terrencecrowley/ot-js": "^1.0.1"
   },
   "devDependencies": {
-    "@types/jquery": "^2.0.34",
-    "@types/node": "^6.0.46",
-    "@types/react": "^0.14.46",
-    "@types/react-dom": "^0.14.18",
-    "source-map-loader": "^0.1.5",
-    "ts-loader": "^1.0.0",
+    "@types/jquery": "^3.2.12",
+    "@types/node": "^8.0.28",
+    "@types/react": "^16.0.5",
+    "@types/react-dom": "^15.5.4",
+    "source-map-loader": "^0.2.1",
+    "ts-loader": "^2.3.7",
     "typescript": "^2.1.4",
-    "webpack": "^1.13.3"
+    "webpack": "^3.5.6"
   }
 }
